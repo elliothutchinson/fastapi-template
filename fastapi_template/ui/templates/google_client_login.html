@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html itemscope itemtype="http://schema.org/Article">
+<head>
+  <meta charset="UTF-8">
+  <meta name="google-signin-client_id" content="{{google_client_id}}">
+  <title>Google Login</title>
+  <script src="https://apis.google.com/js/platform.js" async defer></script>
+  <script>
+    function onSignIn(googleUser) {
+      var id_token = googleUser.getAuthResponse().id_token;
+      console.log("logging in user");
+      console.log(googleUser);
+      console.log(id_token);
+      var params = {
+        "social_token": id_token
+      };
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', '{{ redirect_url }}');
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+      xhr.setRequestHeader('X-Social-OAuth2-Type', 'google-client');
+      xhr.onload = function() {
+        console.log('response: ' + xhr.responseText);
+      };
+      xhr.send(JSON.stringify(params));
+    }
+  </script>
+  <script>
+    function signOut() {
+      var auth2 = gapi.auth2.getAuthInstance();
+      auth2.signOut().then(function () {
+        console.log('User signed out.');
+      });
+    }
+  </script>
+</head>
+<body>
+  <div class="g-signin2" data-onsuccess="onSignIn"></div>
+  <div><br></div>
+  <a href="#" onclick="signOut();">Sign out</a>
+</body>
+</html>

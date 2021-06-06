@@ -1,0 +1,26 @@
+version: "3.7"
+services:
+    app:
+        build:
+            context: ../..
+            dockerfile: ./docker/dev/Dockerfile
+        command: /start-reload.sh
+        ports:
+            - "80:80"
+            - "3000:3000"
+        volumes:
+            - ../../:/app:cached
+        depends_on:
+            - db
+        env_file:
+            - ./env/env-core.env
+            - ./env/env-db.env
+            - ./env/env-email.env
+            - ./env/env-ext.env
+            - ./env/env-social.env
+    db:
+        image: couchbase:community-6.0.0
+        ports:
+            - "8091:8091"
+        volumes:
+            - ../../_tmp/db:/opt/couchbase/var
