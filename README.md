@@ -8,7 +8,7 @@ Built with Python, FastAPI, Ariadne, Couchbase, [Docker](https://github.com/tian
 - Docker
 - Docker Compose
 - [Optional] Visual Studio Code w/ Remote Containers extension
-- [Optional] Add to local hosts 127.0.0.1 <yourdomain> for testing social login
+- [Optional] Add to local hosts 127.0.0.1 yourdomain for testing social login
 
 
 ## Run:
@@ -24,13 +24,13 @@ Access OpenAPI docs [http://localhost/docs](http://localhost/docs)
 Access Couchbase [http://localhost:8091/ui/index.html](http://localhost:8091/ui/index.html)
 
 ### Commands:
-- $ docker-compose -f docker-compose.dev.yml build
-- $ docker-compose -f docker-compose.dev.yml up
-- $ docker-compose -f docker-compose.dev.yml down
+- $ docker-compose -p fastapi_template -f docker-compose.dev.yml build
+- $ docker-compose -p fastapi_template -f docker-compose.dev.yml up
+- $ docker-compose -p fastapi_template -f docker-compose.dev.yml down
 
 ### Convenience Scripts:
 - $ sh dev_build.sh
-- $ sh dev_start.sh
+- $ sh dev_run.sh
 - $ sh dev_stop.sh
 
 ### Database:
