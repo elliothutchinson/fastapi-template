@@ -28,6 +28,8 @@ RUN pip install \
 
 # app to serve
 COPY ./app /app/app
+COPY ./start_reload.sh /start_reload.sh
+RUN chmod +x /start_reload.sh
 
 # dev dependencies
 ARG USERNAME=dev

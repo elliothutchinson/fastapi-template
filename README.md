@@ -29,9 +29,9 @@ Access Couchbase [http://localhost:8091/ui/index.html](http://localhost:8091/ui/
 - $ docker-compose -p fastapi_template -f docker-compose.dev.yml down
 
 ### Convenience Scripts:
-- $ sh dev_build.sh
-- $ sh dev_run.sh
-- $ sh dev_stop.sh
+- $ sh build.sh
+- $ sh run.sh
+- $ sh stop.sh
 
 ### Database:
 Created at container start up (prestart.sh). Trash _tmp/db to clear data.
