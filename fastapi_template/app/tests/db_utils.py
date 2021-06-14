@@ -10,12 +10,12 @@ logger = logging.getLogger(__name__)
 
 async def clean_up_db():
     db_context = await get_db_context()
-    query = f'''
+    query = f"""
             delete from {db_context.config.pg_table}
             where doc->>'type'='{USER_DOC_TYPE}'
             and doc->>'username' like '{TEST_USER_PREFIX}%'
             and doc->>'email' like '{TEST_USER_PREFIX}%'
-            '''
+            """
     async with db_context.connection() as conn:
         result = await conn.execute(query)
         if result:

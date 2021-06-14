@@ -41,7 +41,7 @@ async def insert(
         try:
             query = f"insert into {db_context.config.pg_table} (doc_id, doc) values ($1, $2)"
             stmt = await conn.prepare(query)
-            row = await stmt.fetchrow(doc_id, json_data)
+            await stmt.fetchrow(doc_id, json_data)
             return doc_in
         except UniqueViolationError:
             raise get_already_exists_exception("Resource already exists")
@@ -61,7 +61,7 @@ async def update(
     async with db_context.connection() as conn:
         query = f"update {db_context.config.pg_table} set doc=$1 where doc_id=$2"
         stmt = await conn.prepare(query)
-        row = await stmt.fetchrow(json_data, doc_id)
+        await stmt.fetchrow(json_data, doc_id)
         return doc_updated
     return None
 
@@ -78,7 +78,7 @@ async def remove(
     async with db_context.connection() as conn:
         query = f"delete from {db_context.config.pg_table} where doc_id=$1"
         stmt = await conn.prepare(query)
-        row = await stmt.fetchrow(doc_id)
+        await stmt.fetchrow(doc_id)
         if doc_model:
             return doc
         return True
@@ -103,10 +103,10 @@ async def run_query(
     where = ""
     if where_clause:
         where = f"and {where_clause}"
-    query = f'''
+    query = f"""
             select doc from {db_context.config.pg_table}
             where doc->>'type'='{doc_type}' {where} {order} {limit_rows}
-            '''
+            """
     logger.debug(f"query: {query}")
     docs = []
     async with db_context.connection() as conn:
