@@ -1,7 +1,7 @@
 # fastapi_template
 A FastAPI project template with user support
 
-Built with Python, FastAPI, Ariadne, Couchbase, [Docker](https://github.com/tiangolo/uvicorn-gunicorn-fastapi-docker)
+Built with Python, FastAPI, Ariadne, Postgres, [Docker](https://github.com/tiangolo/uvicorn-gunicorn-fastapi-docker)
 
 
 ## Dev Requirements:
@@ -21,7 +21,7 @@ Access relevant dev links [http://localhost](http://localhost)
 
 Access OpenAPI docs [http://localhost/docs](http://localhost/docs)
 
-Access Couchbase [http://localhost:8091/ui/index.html](http://localhost:8091/ui/index.html)
+Access PG Admin [http://localhost:5052](http://localhost:5052)
 
 ### Commands:
 - $ docker-compose -p fastapi_template -f docker-compose.dev.yml build

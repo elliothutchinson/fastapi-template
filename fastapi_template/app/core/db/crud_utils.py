@@ -1,8 +1,8 @@
+import json
 import logging
 from typing import List, Optional, Type, Union
 
-from couchbase.exceptions import KeyExistsError
-from couchbase.n1ql import N1QLQuery
+from asyncpg.exceptions import UniqueViolationError
 from fastapi.encoders import jsonable_encoder
 
 from app.core.db.models import DbContext
@@ -14,44 +14,37 @@ logger = logging.getLogger(__name__)
 
 
 async def get_doc(
-    db_context: DbContext, doc_id: str, doc_model: Type[PydanticModel]
-) -> Optional[PydanticModel]:
+    db_context: DbContext, doc_id: str, doc_model: Type[PydanticModel] = None
+) -> Optional[Union[PydanticModel, dict]]:
     logger.debug("get_doc()")
-    result = await db_context.bucket.get(doc_id, quiet=True)
-    if not result.value:
-        return None
-    model = doc_model(**result.value)
-    return model
+    async with db_context.connection() as conn:
+        query = f"select * from {db_context.config.pg_table} where doc_id=$1"
+        stmt = await conn.prepare(query)
+        row = await stmt.fetchrow(doc_id)
+        if not row:
+            return None
+        doc_str = row["doc"]
+        json_dict = json.loads(doc_str)
+        if not doc_model:
+            return json_dict
+        model = doc_model(**json_dict)
+        return model
 
 
 async def insert(
-    db_context: DbContext, doc_id: str, doc_in: PydanticModel, persist_to=0, ttl=0
+    db_context: DbContext, doc_id: str, doc_in: PydanticModel
 ) -> Optional[PydanticModel]:
     logger.debug("insert()")
     doc_data = jsonable_encoder(doc_in)
-    with db_context.bucket.durability(
-        persist_to=persist_to, timeout=db_context.config.cb_durability_timeout_secs
-    ):
+    json_data = json.dumps(doc_data)
+    async with db_context.connection() as conn:
         try:
-            result = await db_context.bucket.insert(doc_id, doc_data, ttl=ttl)
-            if result.success:
-                return doc_in
-        except KeyExistsError:
-            raise get_already_exists_exception("Resource already exists")
-    return None
-
-
-async def upsert(
-    db_context: DbContext, doc_id: str, doc_in: PydanticModel, persist_to=0, ttl=0
-) -> Optional[PydanticModel]:
-    logger.debug("upsert()")
-    doc_data = jsonable_encoder(doc_in)
-    with db_context.bucket.durability(
-        persist_to=persist_to, timeout=db_context.config.cb_durability_timeout_secs
-    ):
-        result = await db_context.bucket.upsert(doc_id, doc_data, ttl=ttl)
-        if result.success:
+            query = f"insert into {db_context.config.pg_table} (doc_id, doc) values ($1, $2)"
+            stmt = await conn.prepare(query)
+            row = await stmt.fetchrow(doc_id, json_data)
             return doc_in
+        except UniqueViolationError:
+            raise get_already_exists_exception("Resource already exists")
     return None
 
 
@@ -60,32 +53,16 @@ async def update(
     doc_id: str,
     doc: PydanticModel,
     doc_updated: PydanticModel,
-    persist_to=0,
-    ttl=0,
 ) -> Optional[PydanticModel]:
     logger.debug("update()")
     doc_updated = doc.copy(update=doc_updated.dict(exclude_defaults=True))
-    data = jsonable_encoder(doc_updated)
-    with db_context.bucket.durability(
-        persist_to=persist_to, timeout=db_context.config.cb_durability_timeout_secs
-    ):
-        result = await db_context.bucket.upsert(doc_id, data, ttl=ttl)
-        if result.success:
-            return doc_updated
-    return None
-
-
-async def replace(
-    db_context: DbContext, doc_id: str, doc_in: PydanticModel, persist_to=0, ttl=0
-) -> Optional[PydanticModel]:
-    logger.debug("replace()")
-    doc_data = jsonable_encoder(doc_in)
-    with db_context.bucket.durability(
-        persist_to=persist_to, timeout=db_context.config.cb_durability_timeout_secs
-    ):
-        result = await db_context.bucket.replace(doc_id, doc_data, ttl=ttl)
-        if result.success:
-            return doc_in
+    doc_data = jsonable_encoder(doc_updated)
+    json_data = json.dumps(doc_data)
+    async with db_context.connection() as conn:
+        query = f"update {db_context.config.pg_table} set doc=$1 where doc_id=$2"
+        stmt = await conn.prepare(query)
+        row = await stmt.fetchrow(json_data, doc_id)
+        return doc_updated
     return None
 
 
@@ -93,22 +70,17 @@ async def remove(
     db_context: DbContext,
     doc_id: str,
     doc_model: Type[PydanticModel] = None,
-    persist_to=0,
 ) -> Optional[Union[PydanticModel, bool]]:
     logger.debug("remove()")
-    result = await db_context.bucket.get(doc_id, quiet=True)
-    if not result.value:
+    doc = await get_doc(db_context=db_context, doc_id=doc_id, doc_model=doc_model)
+    if not doc:
         return None
-    if doc_model:
-        model = doc_model(**result.value)
-    with db_context.bucket.durability(
-        persist_to=persist_to, timeout=db_context.config.cb_durability_timeout_secs
-    ):
-        result = await db_context.bucket.remove(doc_id)
-        if not result.success:
-            return None
+    async with db_context.connection() as conn:
+        query = f"delete from {db_context.config.pg_table} where doc_id=$1"
+        stmt = await conn.prepare(query)
+        row = await stmt.fetchrow(doc_id)
         if doc_model:
-            return model
+            return doc
         return True
 
 
@@ -116,14 +88,12 @@ async def run_query(
     db_context: DbContext,
     doc_type: str,
     doc_model: Type[PydanticModel],
-    select_fields: List[str],
     where_clause: str = None,
     where_values: List[str] = [],
     order_by: str = None,
     limit: int = None,
 ):
     logger.debug("run_query()")
-    fields = ",".join(select_fields)
     limit_rows = ""
     if limit:
         limit_rows = f"limit {limit}"
@@ -133,15 +103,19 @@ async def run_query(
     where = ""
     if where_clause:
         where = f"and {where_clause}"
-    query = f"select {fields} from {db_context.config.cb_bucket} \
-            where type='{doc_type}' {where} {order} {limit_rows}"
-    n1ql_query = N1QLQuery(query, *where_values)
-    logger.debug(f"n1ql_query: {n1ql_query}")
-    results = db_context.bucket.n1ql_query(n1ql_query)
+    query = f'''
+            select doc from {db_context.config.pg_table}
+            where doc->>'type'='{doc_type}' {where} {order} {limit_rows}
+            '''
+    logger.debug(f"query: {query}")
     docs = []
-    logger.debug(f"results: {results}")
-    async for row in results:
-        logger.debug(f"row: {row}")
-        doc = doc_model(**row)
-        docs.append(doc)
+    async with db_context.connection() as conn:
+        stmt = await conn.prepare(query)
+        rows = await stmt.fetch(*where_values)
+        for row in rows:
+            logger.debug(f"row: {row}")
+            doc_str = row["doc"]
+            json_dict = json.loads(doc_str)
+            model = doc_model(**json_dict)
+            docs.append(model)
     return docs
