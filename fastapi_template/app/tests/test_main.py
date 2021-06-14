@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import time
 
 from starlette.testclient import TestClient
@@ -14,12 +15,14 @@ from app.tests.utils import (
     register_user,
 )
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 client = TestClient(app)
 
 
 def teardown_module():
-    time.sleep(3)  # wait for query service / eventual consistency
-    asyncio.get_event_loop().run_until_complete(clean_up_db())
+    asyncio.run(clean_up_db())
 
 
 def test_register_user():

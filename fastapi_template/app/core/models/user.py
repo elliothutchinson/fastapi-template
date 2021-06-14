@@ -15,7 +15,9 @@ logger = logging.getLogger(__name__)
 def min_length_password(cls, v):
     logger.debug("min_length_password()")
     if len(v.get_secret_value()) < core_config.password_min_length:
-        raise ValueError(f"ensure this value has at least {core_config.password_min_length} characters")
+        raise ValueError(
+            f"ensure this value has at least {core_config.password_min_length} characters"
+        )
     return v
 
 

@@ -13,7 +13,6 @@ from app.core.models.user import (
     UserUpdateDb,
     UserUpdatePrivate,
 )
-from app.core.models.utils import get_model_fields
 from app.core.security.crypt import get_password_hash
 
 logging.basicConfig(level=logging.INFO)
@@ -33,13 +32,11 @@ async def get_user_by_email(email: str):
 
 async def get_user_by_email_from_db(db_context: DbContext, email: str):
     logger.debug("get_user_by_email_from_db()")
-    select_fields = get_model_fields(model=UserDb)
     users = await run_query(
         db_context=db_context,
         doc_type=USER_DOC_TYPE,
         doc_model=UserDb,
-        select_fields=select_fields,
-        where_clause="email=$1",
+        where_clause="doc->>'email'=$1",
         where_values=[email],
         limit=1,
     )
@@ -78,7 +75,7 @@ async def update_user(username: str, user_update: UserUpdate):
 
 
 async def update_user_in_db(
-    db_context: DbContext, username: str, user_update: UserUpdate, persist_to=0
+    db_context: DbContext, username: str, user_update: UserUpdate
 ):
     logger.debug("update_user_in_db()")
     doc_id = get_user_doc_id(username)
@@ -96,7 +93,6 @@ async def update_user_in_db(
         doc_id=doc_id,
         doc=user,
         doc_updated=user_update_db,
-        persist_to=persist_to,
     )
 
 
@@ -109,7 +105,7 @@ async def update_user_private(username: str, user_update: UserUpdatePrivate):
 
 
 async def update_user_private_in_db(
-    db_context: DbContext, username: str, user_update: UserUpdatePrivate, persist_to=0
+    db_context: DbContext, username: str, user_update: UserUpdatePrivate
 ):
     logger.debug("update_user_private_in_db()")
     doc_id = get_user_doc_id(username)
@@ -120,7 +116,6 @@ async def update_user_private_in_db(
         doc_id=doc_id,
         doc=user,
         doc_updated=user_update_db,
-        persist_to=persist_to,
     )
 
 
@@ -135,13 +130,11 @@ async def create_user(user_in: UserCreate):
     return await insert_user_in_db(db_context=db_context, user_in=user_in)
 
 
-async def insert_user_in_db(db_context: DbContext, user_in: UserCreate, persist_to=0):
+async def insert_user_in_db(db_context: DbContext, user_in: UserCreate):
     logger.debug("insert_user_in_db()")
     doc_id = get_user_doc_id(user_in.username)
     password_hash = get_password_hash(user_in.password)
     user_db = UserDb(
         **user_in.dict(), date_created=datetime.now(), hashed_password=password_hash
     )
-    return await insert(
-        db_context=db_context, doc_id=doc_id, doc_in=user_db, persist_to=persist_to
-    )
+    return await insert(db_context=db_context, doc_id=doc_id, doc_in=user_db)

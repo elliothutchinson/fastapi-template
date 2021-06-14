@@ -4,7 +4,7 @@ from app.core.config import core_config
 
 PASSWORD = "password"
 TEST_USER_PREFIX = "testuser"
-TEST_EMAIL_SUFFIX = "@test.com"
+TEST_EMAIL_SUFFIX = "@example.com"
 
 
 def get_test_username():
