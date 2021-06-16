@@ -27,11 +27,13 @@ Access PG Admin [http://localhost:5052](http://localhost:5052)
 - $ docker-compose -p fastapi_template -f docker-compose.dev.yml build
 - $ docker-compose -p fastapi_template -f docker-compose.dev.yml up
 - $ docker-compose -p fastapi_template -f docker-compose.dev.yml down
+- $ docker exec -it fastapi_template_app_1 bash
 
 ### Convenience Scripts:
 - $ sh build.sh
 - $ sh run.sh
 - $ sh stop.sh
+- $ sh connect.sh
 
 ### Database:
 Created at container start up (prestart.sh). Trash _tmp/db to clear data.

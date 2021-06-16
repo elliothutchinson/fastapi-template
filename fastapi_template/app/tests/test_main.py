@@ -22,7 +22,7 @@ client = TestClient(app)
 
 
 def teardown_module():
-    asyncio.run(clean_up_db())
+    asyncio.run(clean_up_db(use_test_db=False))
 
 
 def test_register_user():

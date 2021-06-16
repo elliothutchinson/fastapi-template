@@ -16,8 +16,18 @@ async def config_postgres(postgres_config: PostgresConfig):
         await create_postgres_user(postgres_config=postgres_config)
     if not await is_postgres_db_created(postgres_config=postgres_config):
         await create_postgres_db(postgres_config=postgres_config)
-    if not await is_postgres_table_created(postgres_config=postgres_config):
-        await create_postgres_table(postgres_config=postgres_config)
+    if not await is_postgres_table_created(
+        postgres_config=postgres_config, table=postgres_config.pg_table
+    ):
+        await create_postgres_table(
+            postgres_config=postgres_config, table=postgres_config.pg_table
+        )
+    if not await is_postgres_table_created(
+        postgres_config=postgres_config, table=postgres_config.pg_test_table
+    ):
+        await create_postgres_table(
+            postgres_config=postgres_config, table=postgres_config.pg_test_table
+        )
     return True
 
 
@@ -69,7 +79,7 @@ async def is_postgres_db_created(postgres_config: PostgresConfig):
     return db_created
 
 
-async def is_postgres_table_created(postgres_config: PostgresConfig):
+async def is_postgres_table_created(postgres_config: PostgresConfig, table: str):
     logger.debug("is_postgres_table_created()")
     table_created = False
     conn = None
@@ -82,7 +92,7 @@ async def is_postgres_table_created(postgres_config: PostgresConfig):
             database=postgres_config.pg_db,
         )
         row = await conn.fetchrow(
-            f"select table_name from information_schema.tables where table_name='{postgres_config.pg_table}'"
+            f"select table_name from information_schema.tables where table_name='{table}'"
         )
         if row:
             table_created = True
@@ -90,7 +100,7 @@ async def is_postgres_table_created(postgres_config: PostgresConfig):
         if conn:
             logger.debug("is_postgres_table_created::closing conn")
             await conn.close()
-    logger.debug(f"table_created: {table_created}")
+    logger.debug(f"table '{table}' created: {table_created}")
     return table_created
 
 
@@ -142,7 +152,7 @@ async def create_postgres_db(postgres_config: PostgresConfig):
     return db_created
 
 
-async def create_postgres_table(postgres_config: PostgresConfig):
+async def create_postgres_table(postgres_config: PostgresConfig, table: str):
     logger.debug("create_postgres_table()")
     table_created = False
     conn = None
@@ -156,20 +166,20 @@ async def create_postgres_table(postgres_config: PostgresConfig):
         )
         await conn.execute(
             f"""
-            create table docs (
+            create table {table} (
                 doc_id varchar,
                 doc jsonb,
                 primary key (doc_id)
             )
             """
         )
-        await conn.execute(f"create index on docs ((doc->>'type'))")
+        await conn.execute(f"create index on {table} ((doc->>'type'))")
         table_created = True
     finally:
         if conn:
             logger.debug("create_postgres_table::closing conn")
             await conn.close()
-    logger.debug(f"table_created: {table_created}")
+    logger.debug(f"table '{table}' created: {table_created}")
     return table_created
 
 

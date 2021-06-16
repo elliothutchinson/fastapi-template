@@ -12,6 +12,7 @@ class PostgresConfig(BaseModel):
     pg_app_password: str = "password"
     pg_db: str = "api"
     pg_table: str = "docs"
+    pg_test_table: str = "test_docs"
 
 
 class DbContext(BaseModel):

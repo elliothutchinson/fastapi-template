@@ -45,7 +45,6 @@ async def insert(
             return doc_in
         except UniqueViolationError:
             raise get_already_exists_exception("Resource already exists")
-    return None
 
 
 async def update(
@@ -63,7 +62,6 @@ async def update(
         stmt = await conn.prepare(query)
         await stmt.fetchrow(json_data, doc_id)
         return doc_updated
-    return None
 
 
 async def remove(
@@ -92,7 +90,7 @@ async def run_query(
     where_values: List[str] = [],
     order_by: str = None,
     limit: int = None,
-):
+) -> List[PydanticModel]:
     logger.debug("run_query()")
     limit_rows = ""
     if limit:

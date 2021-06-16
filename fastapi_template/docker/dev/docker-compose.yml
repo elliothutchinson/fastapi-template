@@ -28,8 +28,8 @@ services:
             - ./env/env-db.env
     pgadmin:
         image: dpage/pgadmin4
-        logging:
-            driver: none
+        # logging:
+            # driver: none
         restart: always
         ports:
             - "5052:5052"
