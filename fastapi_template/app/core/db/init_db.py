@@ -1,17 +1,17 @@
 import asyncio
-import logging
 
 import asyncpg
 
+from app.core import logger as trace
 from app.core.db.config import postgres_config
 from app.core.db.models import PostgresConfig
+from app.core.logger import get_logger
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
+@trace.debug(logger)
 async def config_postgres(postgres_config: PostgresConfig):
-    logger.debug("config_postgres()")
     if not await is_postgres_user_created(postgres_config=postgres_config):
         await create_postgres_user(postgres_config=postgres_config)
     if not await is_postgres_db_created(postgres_config=postgres_config):
@@ -31,8 +31,8 @@ async def config_postgres(postgres_config: PostgresConfig):
     return True
 
 
+@trace.debug(logger)
 async def is_postgres_user_created(postgres_config: PostgresConfig):
-    logger.debug("is_postgres_user_created()")
     user_created = False
     conn = None
     try:
@@ -56,8 +56,8 @@ async def is_postgres_user_created(postgres_config: PostgresConfig):
     return user_created
 
 
+@trace.debug(logger)
 async def is_postgres_db_created(postgres_config: PostgresConfig):
-    logger.debug("is_postgres_db_created()")
     db_created = False
     conn = None
     try:
@@ -79,8 +79,8 @@ async def is_postgres_db_created(postgres_config: PostgresConfig):
     return db_created
 
 
+@trace.debug(logger)
 async def is_postgres_table_created(postgres_config: PostgresConfig, table: str):
-    logger.debug("is_postgres_table_created()")
     table_created = False
     conn = None
     try:
@@ -104,8 +104,8 @@ async def is_postgres_table_created(postgres_config: PostgresConfig, table: str)
     return table_created
 
 
+@trace.debug(logger)
 async def create_postgres_user(postgres_config: PostgresConfig):
-    logger.debug("create_postgres_user()")
     user_created = False
     conn = None
     try:
@@ -128,8 +128,8 @@ async def create_postgres_user(postgres_config: PostgresConfig):
     return user_created
 
 
+@trace.debug(logger)
 async def create_postgres_db(postgres_config: PostgresConfig):
-    logger.debug("create_postgres_db()")
     db_created = False
     conn = None
     try:
@@ -152,8 +152,8 @@ async def create_postgres_db(postgres_config: PostgresConfig):
     return db_created
 
 
+@trace.debug(logger)
 async def create_postgres_table(postgres_config: PostgresConfig, table: str):
-    logger.debug("create_postgres_table()")
     table_created = False
     conn = None
     try:
@@ -183,9 +183,8 @@ async def create_postgres_table(postgres_config: PostgresConfig, table: str):
     return table_created
 
 
+@trace.debug(logger)
 def init_db():
-    logger.debug("init_db()")
-
     asyncio.run(config_postgres(postgres_config=postgres_config))
 
 

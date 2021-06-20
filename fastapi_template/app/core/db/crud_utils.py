@@ -1,22 +1,22 @@
 import json
-import logging
 from typing import List, Optional, Type, Union
 
 from asyncpg.exceptions import UniqueViolationError
 from fastapi.encoders import jsonable_encoder
 
+from app.core import logger as trace
 from app.core.db.models import DbContext
 from app.core.exception import get_already_exists_exception
+from app.core.logger import get_logger
 from app.core.models.utils import PydanticModel
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
+@trace.debug(logger)
 async def get_doc(
     db_context: DbContext, doc_id: str, doc_model: Type[PydanticModel] = None
 ) -> Optional[Union[PydanticModel, dict]]:
-    logger.debug("get_doc()")
     async with db_context.connection() as conn:
         query = f"select * from {db_context.config.pg_table} where doc_id=$1"
         stmt = await conn.prepare(query)
@@ -31,10 +31,10 @@ async def get_doc(
         return model
 
 
+@trace.debug(logger)
 async def insert(
     db_context: DbContext, doc_id: str, doc_in: PydanticModel
 ) -> Optional[PydanticModel]:
-    logger.debug("insert()")
     doc_data = jsonable_encoder(doc_in)
     json_data = json.dumps(doc_data)
     async with db_context.connection() as conn:
@@ -47,13 +47,13 @@ async def insert(
             raise get_already_exists_exception("Resource already exists")
 
 
+@trace.debug(logger)
 async def update(
     db_context: DbContext,
     doc_id: str,
     doc: PydanticModel,
     doc_updated: PydanticModel,
 ) -> Optional[PydanticModel]:
-    logger.debug("update()")
     doc_updated = doc.copy(update=doc_updated.dict(exclude_defaults=True))
     doc_data = jsonable_encoder(doc_updated)
     json_data = json.dumps(doc_data)
@@ -64,12 +64,12 @@ async def update(
         return doc_updated
 
 
+@trace.debug(logger)
 async def remove(
     db_context: DbContext,
     doc_id: str,
     doc_model: Type[PydanticModel] = None,
 ) -> Optional[Union[PydanticModel, bool]]:
-    logger.debug("remove()")
     doc = await get_doc(db_context=db_context, doc_id=doc_id, doc_model=doc_model)
     if not doc:
         return None
@@ -82,6 +82,7 @@ async def remove(
         return True
 
 
+@trace.debug(logger)
 async def run_query(
     db_context: DbContext,
     doc_type: str,
@@ -91,7 +92,6 @@ async def run_query(
     order_by: str = None,
     limit: int = None,
 ) -> List[PydanticModel]:
-    logger.debug("run_query()")
     limit_rows = ""
     if limit:
         limit_rows = f"limit {limit}"
@@ -106,6 +106,7 @@ async def run_query(
             where doc->>'type'='{doc_type}' {where} {order} {limit_rows}
             """
     logger.debug(f"query: {query}")
+    logger.debug(f"where_values: {where_values}")
     docs = []
     async with db_context.connection() as conn:
         stmt = await conn.prepare(query)

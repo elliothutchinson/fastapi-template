@@ -1,14 +1,12 @@
-import logging
-
 from fastapi import APIRouter
 
 from app.core.api.v1 import login, users
 from app.core.config import core_config
+from app.core.logger import get_logger
 from app.core.services.social import api as social
 from app.core.services.social.config import social_config
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 v1_router = APIRouter()
 

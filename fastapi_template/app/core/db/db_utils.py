@@ -1,21 +1,22 @@
-import logging
 from contextlib import asynccontextmanager
 
 import asyncpg
 
+from app.core import logger as trace
 from app.core.db.config import postgres_config
 from app.core.db.models import DbContext, PostgresConfig
+from app.core.logger import get_logger
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
+@trace.debug(logger)
 async def get_db_context():
-    logger.debug("get_db_context()")
     connection = connection_manager(postgres_config=postgres_config)
     return DbContext(config=postgres_config, connection=connection)
 
 
+@trace.debug(logger)
 def connection_manager(postgres_config: PostgresConfig):
     @asynccontextmanager
     async def get_connection():

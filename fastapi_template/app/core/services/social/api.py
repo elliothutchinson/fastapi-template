@@ -1,4 +1,3 @@
-import logging
 from datetime import datetime
 from typing import Tuple
 
@@ -8,6 +7,7 @@ from starlette.templating import Jinja2Templates
 
 from app.core.config import core_config
 from app.core.crud.user import create_user, update_user_private
+from app.core.logger import get_logger
 from app.core.models.token import Token
 from app.core.models.user import User, UserCreate, UserUpdatePrivate
 from app.core.security.security import generate_login_token, get_active_user_by_email
@@ -19,8 +19,7 @@ from .security import generate_random_password, get_user_info_from_social_token
 
 templates = Jinja2Templates(directory="ui/templates")
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 router = APIRouter()
 
@@ -31,7 +30,6 @@ base_url = (
 
 @router.get("/google_client_login")
 def login_for_google_client(request: Request):
-    logger.debug("login_for_google_client()")
     url = f"{base_url}{social_config.swap_token_path}"
     return templates.TemplateResponse(
         "google_client_login.html",
@@ -45,7 +43,6 @@ def login_for_google_client(request: Request):
 
 @router.get("/google_client_register")
 def register_for_google_client(request: Request):
-    logger.debug("register_for_google_client()")
     url = f"{base_url}{social_config.social_register_path}"
     return templates.TemplateResponse(
         "google_client_register.html",
@@ -63,7 +60,6 @@ async def register_user_by_social(
     user_create_social: UserCreateSocial = Body(...),
     email_name: Tuple[str, str] = Depends(get_user_info_from_social_token),
 ):
-    logger.debug("register_social()")
     logger.debug(email_name)
     user_create = UserCreate(
         username=user_create_social.username,
@@ -81,7 +77,6 @@ async def swap_token(
     background_tasks: BackgroundTasks,
     email_name: Tuple[str, str] = Depends(get_user_info_from_social_token),
 ):
-    logger.debug("swap_token()")
     logger.debug(f"email_name: {email_name}")
     user = await get_active_user_by_email(email=email_name[0])
     background_tasks.add_task(

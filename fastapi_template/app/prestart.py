@@ -27,10 +27,7 @@ def init():
 
 
 def main():
-    logger.info("main()")
     logger.info("Initializing service")
-    # logger.info("initial wait for db for 5 seconds")
-    # time.sleep(5)
     init()
     logger.info("Service finished initializing")
 

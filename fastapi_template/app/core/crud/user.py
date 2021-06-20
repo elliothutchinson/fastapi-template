@@ -1,10 +1,11 @@
-import logging
 from datetime import datetime
 
+from app.core import logger as trace
 from app.core.db.crud_utils import get_doc, insert, run_query, update
 from app.core.db.db_utils import get_db_context
 from app.core.db.models import DbContext
 from app.core.exception import get_already_exists_exception
+from app.core.logger import get_logger
 from app.core.models.user import (
     USER_DOC_TYPE,
     UserCreate,
@@ -15,23 +16,22 @@ from app.core.models.user import (
 )
 from app.core.security.crypt import get_password_hash
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
+@trace.debug(logger)
 def get_user_doc_id(username: str):
-    logger.debug("get_user_doc_id()")
     return f"{USER_DOC_TYPE}::{username}"
 
 
+@trace.debug(logger)
 async def get_user_by_email(email: str):
-    logger.debug("get_user_by_email()")
     db_context = await get_db_context()
     return await get_user_by_email_from_db(db_context=db_context, email=email)
 
 
+@trace.debug(logger)
 async def get_user_by_email_from_db(db_context: DbContext, email: str):
-    logger.debug("get_user_by_email_from_db()")
     users = await run_query(
         db_context=db_context,
         doc_type=USER_DOC_TYPE,
@@ -46,20 +46,20 @@ async def get_user_by_email_from_db(db_context: DbContext, email: str):
     return user
 
 
+@trace.debug(logger)
 async def get_user(username: str):
-    logger.debug("get_user()")
     db_context = await get_db_context()
     return await get_user_from_db(db_context=db_context, username=username)
 
 
+@trace.debug(logger)
 async def get_user_from_db(db_context: DbContext, username: str):
-    logger.debug("get_user_from_db()")
     doc_id = get_user_doc_id(username)
     return await get_doc(db_context=db_context, doc_id=doc_id, doc_model=UserDb)
 
 
+@trace.debug(logger)
 async def update_user(username: str, user_update: UserUpdate):
-    logger.debug("update_user()")
     db_context = await get_db_context()
     if user_update.email:
         existing_user = await get_user_by_email_from_db(
@@ -74,10 +74,10 @@ async def update_user(username: str, user_update: UserUpdate):
     )
 
 
+@trace.debug(logger)
 async def update_user_in_db(
     db_context: DbContext, username: str, user_update: UserUpdate
 ):
-    logger.debug("update_user_in_db()")
     doc_id = get_user_doc_id(username)
     user = await get_user_from_db(db_context=db_context, username=username)
     hashed_password = None
@@ -96,18 +96,18 @@ async def update_user_in_db(
     )
 
 
+@trace.debug(logger)
 async def update_user_private(username: str, user_update: UserUpdatePrivate):
-    logger.debug("update_user_private()")
     db_context = await get_db_context()
     return await update_user_private_in_db(
         db_context=db_context, username=username, user_update=user_update
     )
 
 
+@trace.debug(logger)
 async def update_user_private_in_db(
     db_context: DbContext, username: str, user_update: UserUpdatePrivate
 ):
-    logger.debug("update_user_private_in_db()")
     doc_id = get_user_doc_id(username)
     user = await get_user_from_db(db_context=db_context, username=username)
     user_update_db = UserUpdateDb(**user_update.dict())
@@ -119,8 +119,8 @@ async def update_user_private_in_db(
     )
 
 
+@trace.info(logger)
 async def create_user(user_in: UserCreate):
-    logger.debug("create_user()")
     db_context = await get_db_context()
     existing_user = await get_user_by_email_from_db(
         db_context=db_context, email=user_in.email
@@ -130,8 +130,9 @@ async def create_user(user_in: UserCreate):
     return await insert_user_in_db(db_context=db_context, user_in=user_in)
 
 
+# todo: rename user_in to user_create, look at other naming in proj
+@trace.debug(logger)
 async def insert_user_in_db(db_context: DbContext, user_in: UserCreate):
-    logger.debug("insert_user_in_db()")
     doc_id = get_user_doc_id(user_in.username)
     password_hash = get_password_hash(user_in.password)
     user_db = UserDb(

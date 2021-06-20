@@ -1,5 +1,3 @@
-import logging
-
 from fastapi import APIRouter, BackgroundTasks, Depends
 from pydantic import EmailStr
 from starlette.requests import Request
@@ -13,6 +11,7 @@ from app.core.crud.user import (
     update_user_private,
 )
 from app.core.exception import not_found_exception
+from app.core.logger import get_logger
 from app.core.models.user import (
     User,
     UserCreate,
@@ -27,8 +26,7 @@ from app.core.security.security import (
 from app.core.services.cache import fetch_data
 from app.core.services.email.service import send_welcome_email
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 router = APIRouter()
@@ -36,7 +34,6 @@ router = APIRouter()
 
 @router.get("/cache/{hello}")
 async def read_cache(hello: str):
-    logger.info("read_cache called")
     logger.info(fetch_data.cache_info())
     return fetch_data(hello)
 
@@ -78,7 +75,6 @@ async def register_user(user_in: UserCreate, background_tasks: BackgroundTasks):
 
 @router.get(core_config.verify_path)
 async def verify_account(token: str, request: Request):
-    logger.debug("verify_account()")
     user = await get_user_from_verify_token(token=token)
     user_update = UserUpdatePrivate(verified=True)
     await update_user_private(username=user.username, user_update=user_update)

@@ -1,11 +1,12 @@
-import logging
 from pathlib import Path
 
 import emails
 from emails.template import JinjaTemplate
 from pydantic import EmailStr
 
+from app.core import logger as trace
 from app.core.config import core_config
+from app.core.logger import get_logger
 from app.core.models.user import User
 from app.core.security.security import (
     generate_password_reset_token,
@@ -14,14 +15,13 @@ from app.core.security.security import (
 
 from .config import email_config
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
+@trace.debug(logger)
 def send_email(
     email_to: EmailStr, subject_template="", html_template="", environment={}
 ):
-    logger.debug("send_email()")
     if not email_config.email_enabled:
         logger.info("emails disabled, skipping email send")
         return
@@ -41,8 +41,8 @@ def send_email(
     return response
 
 
+@trace.debug(logger)
 def send_welcome_email(user: User):
-    logger.debug("send_welcome_email()")
     logger.debug(f"sending welcome email to: {user.email}")
     subject = f"{core_config.project_name} - Verify account for user {user.username}"
     with open(Path(email_config.email_templates_dir) / "welcome_email.html") as f:
@@ -66,8 +66,8 @@ def send_welcome_email(user: User):
     )
 
 
+@trace.debug(logger)
 async def send_reset_email(user: User):
-    logger.debug("send_reset_email()")
     logger.debug(f"sending reset email to: {user.email}")
     subject = f"{core_config.project_name} - Password recovery for user {user.username}"
     with open(Path(email_config.email_templates_dir) / "reset_password.html") as f:

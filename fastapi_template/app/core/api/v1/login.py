@@ -1,4 +1,3 @@
-import logging
 from datetime import datetime
 
 from fastapi import APIRouter, BackgroundTasks, Body, Depends
@@ -10,6 +9,7 @@ from starlette.templating import Jinja2Templates
 
 from app.core.config import core_config
 from app.core.crud.user import update_user, update_user_private
+from app.core.logger import get_logger
 from app.core.models.token import Credential, ResetPasswordToken, Token
 from app.core.models.user import UserUpdate, UserUpdatePrivate
 from app.core.security.security import (
@@ -20,8 +20,7 @@ from app.core.security.security import (
 )
 from app.core.services.email.service import send_reset_email
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 templates = Jinja2Templates(directory=core_config.templates_dir)
 
@@ -34,7 +33,6 @@ base_url = f"{core_config.base_url}{core_config.api_v1}{core_config.login_path}"
 async def login_for_access_token(
     background_tasks: BackgroundTasks, form_data: OAuth2PasswordRequestForm = Depends()
 ):
-    logger.debug("login_for_access_token()")
     cred = Credential(password=form_data.password)
     user = await get_authenticated_user(
         username=form_data.username, password=cred.password
@@ -51,7 +49,6 @@ async def login_for_access_token(
 async def email_password_reset_token(
     background_tasks: BackgroundTasks, email: EmailStr = Body(...)
 ):
-    logger.debug("email_password_reset_token()")
     user = await get_active_user_by_email(email=email)
     background_tasks.add_task(send_reset_email, user=user)
     return {"detail": "email reset sent"}
@@ -59,7 +56,6 @@ async def email_password_reset_token(
 
 @router.get(core_config.reset_path)
 async def reset_token_form(token: str, request: Request):
-    logger.debug("reset_token_form()")
     await get_user_from_reset_token(token=token)
     url = f"{base_url}{core_config.reset_path}"
     return templates.TemplateResponse(
@@ -75,7 +71,6 @@ async def reset_token_form(token: str, request: Request):
 async def reset_password_with_token(
     reset_password_token: ResetPasswordToken = Body(...),
 ):
-    logger.debug("reset_password_with_token()")
     user = await get_user_from_reset_token(token=reset_password_token.token)
     user_update = UserUpdate(password=reset_password_token.password.get_secret_value())
     await update_user(username=user.username, user_update=user_update)

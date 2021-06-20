@@ -1,4 +1,3 @@
-import logging
 import secrets
 import string
 
@@ -7,16 +6,18 @@ from google.auth.transport import requests
 from google.oauth2 import id_token
 from starlette.requests import Request
 
+from app.core import logger as trace
+from app.core.logger import get_logger
 from app.core.security.security import validate_request
 
 from .config import social_config
 from .models import SocialToken
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
+@trace.debug(logger)
 async def validate_google_client_token(auth_code):
-    logger.debug("validate_google_client_token()")
     email = None
     name = None
     try:
@@ -43,10 +44,10 @@ async def validate_google_client_token(auth_code):
     return email, name
 
 
+@trace.debug(logger)
 async def get_user_info_from_social_token(
     social_token: SocialToken = Body(...), request: Request = Depends(validate_request)
 ):
-    logger.debug("get_user_info_from_social_token()")
     oauth2_source = request.headers.get("X-Social-OAuth2-Type")
     auth_code = social_token.social_token
     logger.debug(f"authcode: {auth_code}")
@@ -63,6 +64,7 @@ async def get_user_info_from_social_token(
     return email, name
 
 
+@trace.debug(logger)
 def generate_random_password():
     alphabet = string.ascii_letters + string.digits
     return "".join(secrets.choice(alphabet) for i in range(25))

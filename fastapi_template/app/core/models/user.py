@@ -1,19 +1,17 @@
-import logging
 from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel, EmailStr, SecretStr, constr, validator
 
 from app.core.config import core_config
+from app.core.logger import get_logger
 
 USER_DOC_TYPE = "user"
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def min_length_password(cls, v):
-    logger.debug("min_length_password()")
     if len(v.get_secret_value()) < core_config.password_min_length:
         raise ValueError(
             f"ensure this value has at least {core_config.password_min_length} characters"

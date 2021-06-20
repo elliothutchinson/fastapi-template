@@ -1,12 +1,13 @@
-import logging
 import os
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+from app.core import logger as trace
+from app.core.logger import get_logger
+
+logger = get_logger(__name__)
 
 
+@trace.debug(logger)
 def getenv_boolean(var_name, default_value=False):
-    logger.debug("getenv_boolean()")
     result = default_value
     env_value = os.getenv(var_name)
     if env_value is not None:
@@ -14,20 +15,20 @@ def getenv_boolean(var_name, default_value=False):
     return result
 
 
+@trace.debug(logger)
 def getenv_int(var_name, default_value):
-    logger.debug("getenv_int()")
     result = os.getenv(var_name, default_value)
     return int(result)
 
 
+@trace.debug(logger)
 def getenv_float(var_name, default_value):
-    logger.debug("getenv_float()")
     result = os.getenv(var_name, default_value)
     return float(result)
 
 
+@trace.debug(logger)
 def getenv_or_raise_exception(var_name):
-    logger.debug("getenv_or_raise_exception()")
     result = os.getenv(var_name)
     if result is None:
         raise Exception(
@@ -36,8 +37,8 @@ def getenv_or_raise_exception(var_name):
     return result
 
 
+@trace.debug(logger)
 def populate_from_env_var(obj):
-    logger.debug("populate_from_env_var")
     for key in vars(obj):
         key_upper = key.upper()
         value_default = getattr(obj, key)

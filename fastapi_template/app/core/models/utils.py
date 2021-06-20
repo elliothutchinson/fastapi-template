@@ -1,14 +1,15 @@
-import logging
 from typing import Type, TypeVar
 
 from pydantic import BaseModel
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+from app.core import logger as trace
+from app.core.logger import get_logger
+
+logger = get_logger(__name__)
 
 PydanticModel = TypeVar("PydanticModel", bound=BaseModel)
 
 
+@trace.debug(logger)
 def get_model_fields(model: Type[PydanticModel]):
-    logger.debug("get_model_fields()")
     return [k for k in model.__fields__.keys()]
