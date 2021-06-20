@@ -1,0 +1,43 @@
+# types
+type Todo {
+    todo_id: String
+    todo_list: String
+    description: String
+    completed: Boolean
+    date_created: String
+    date_modified: String
+}
+
+input TodoCreateInput {
+    todo_list: String
+    description: String
+}
+
+input TodoUpdateInput {
+    todo_id: String
+    todo_list: String
+    description: String
+    completed: Boolean
+}
+
+type TodosResponse {
+    todos: [Todo]
+    errors: [String]
+}
+
+type TodoResponse {
+    todo: Todo
+    errors: [String]
+}
+
+# queries
+type Query {
+    get_todos(todo_list: String, incomplete_only: Boolean): TodosResponse
+}
+
+# mutations
+type Mutation {
+    create_todo(input: TodoCreateInput): TodoResponse
+    update_todo(input: TodoUpdateInput): TodoResponse
+    remove_todo(todo_id: String): TodoResponse
+}
