@@ -28,6 +28,7 @@ type_defs = load_schema_from_path(os.path.dirname(__file__))
 @trace.debug(logger)
 def populate_query(query):
     @query.field("get_todos")
+    @trace.debug(logger)
     async def resolve_get_todos(_, info, todo_list=None, incomplete_only=None):
         secure = await secure_graphql(info, TodosResponse)
         if secure.error:
@@ -43,6 +44,7 @@ def populate_query(query):
 @trace.debug(logger)
 def populate_mutation(mutation):
     @mutation.field("create_todo")
+    @trace.debug(logger)
     async def resolve_create_todo(_, info, input):
         logger.debug(f"input: {input}")
         secure = await secure_graphql(info, TodoResponse)
@@ -54,6 +56,7 @@ def populate_mutation(mutation):
         return TodoResponse(todo=result)
 
     @mutation.field("update_todo")
+    @trace.debug(logger)
     async def resolve_update_todo(_, info, input):
         logger.debug(f"input: {input}")
         secure = await secure_graphql(info, TodoResponse)
@@ -69,6 +72,7 @@ def populate_mutation(mutation):
         return response
 
     @mutation.field("remove_todo")
+    @trace.debug(logger)
     async def resolve_remove_todo(_, info, todo_id: str):
         logger.debug(f"todo_id: {todo_id}")
         secure = await secure_graphql(info, TodoResponse)

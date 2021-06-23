@@ -2,6 +2,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends
 from pydantic import EmailStr
 from starlette.requests import Request
 
+from app.core import logger as trace
 from app.core.config import core_config
 from app.core.crud.user import (
     create_user,
@@ -33,17 +34,20 @@ router = APIRouter()
 
 
 @router.get("/cache/{hello}")
+@trace.debug(logger)
 async def read_cache(hello: str):
     logger.info(fetch_data.cache_info())
     return fetch_data(hello)
 
 
 @router.get("/", response_model=User)
+@trace.debug(logger)
 async def read_current_user(current_user: User = Depends(get_current_active_user)):
     return current_user
 
 
 @router.get("/username/{username}", response_model=UserPublic)
+@trace.debug(logger)
 async def read_user_by_username(username: str):
     user = await get_user(username)
     if user is None:
@@ -52,6 +56,7 @@ async def read_user_by_username(username: str):
 
 
 @router.get("/email/{email}", response_model=UserPublic)
+@trace.debug(logger)
 async def read_user_by_email(email: EmailStr):
     user = await get_user_by_email(email)
     if user is None:
@@ -60,6 +65,7 @@ async def read_user_by_email(email: EmailStr):
 
 
 @router.put("/", response_model=User)
+@trace.debug(logger)
 async def update_user_data(
     user_update: UserUpdate, current_user: User = Depends(get_current_active_user)
 ):
@@ -67,6 +73,7 @@ async def update_user_data(
 
 
 @router.post("/", response_model=User)
+@trace.debug(logger)
 async def register_user(user_in: UserCreate, background_tasks: BackgroundTasks):
     user = await create_user(user_in=user_in)
     background_tasks.add_task(send_welcome_email, user=user)
@@ -74,6 +81,7 @@ async def register_user(user_in: UserCreate, background_tasks: BackgroundTasks):
 
 
 @router.get(core_config.verify_path)
+@trace.debug(logger)
 async def verify_account(token: str, request: Request):
     user = await get_user_from_verify_token(token=token)
     user_update = UserUpdatePrivate(verified=True)

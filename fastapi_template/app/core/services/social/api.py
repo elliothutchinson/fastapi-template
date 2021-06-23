@@ -5,6 +5,7 @@ from fastapi import APIRouter, BackgroundTasks, Body, Depends
 from starlette.requests import Request
 from starlette.templating import Jinja2Templates
 
+from app.core import logger as trace
 from app.core.config import core_config
 from app.core.crud.user import create_user, update_user_private
 from app.core.logger import get_logger
@@ -29,6 +30,7 @@ base_url = (
 
 
 @router.get("/google_client_login")
+@trace.debug(logger)
 def login_for_google_client(request: Request):
     url = f"{base_url}{social_config.swap_token_path}"
     return templates.TemplateResponse(
@@ -42,6 +44,7 @@ def login_for_google_client(request: Request):
 
 
 @router.get("/google_client_register")
+@trace.debug(logger)
 def register_for_google_client(request: Request):
     url = f"{base_url}{social_config.social_register_path}"
     return templates.TemplateResponse(
@@ -55,6 +58,7 @@ def register_for_google_client(request: Request):
 
 
 @router.post(social_config.social_register_path, response_model=User)
+@trace.debug(logger)
 async def register_user_by_social(
     background_tasks: BackgroundTasks,
     user_create_social: UserCreateSocial = Body(...),
@@ -73,6 +77,7 @@ async def register_user_by_social(
 
 
 @router.post(social_config.swap_token_path, response_model=Token)
+@trace.debug(logger)
 async def swap_token(
     background_tasks: BackgroundTasks,
     email_name: Tuple[str, str] = Depends(get_user_info_from_social_token),

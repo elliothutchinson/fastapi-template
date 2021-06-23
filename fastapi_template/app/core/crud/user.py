@@ -119,7 +119,7 @@ async def update_user_private_in_db(
     )
 
 
-@trace.info(logger)
+@trace.debug(logger)
 async def create_user(user_in: UserCreate):
     db_context = await get_db_context()
     existing_user = await get_user_by_email_from_db(

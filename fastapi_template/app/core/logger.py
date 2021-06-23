@@ -1,3 +1,7 @@
+import inspect
+from functools import wraps
+
+
 def get_logger(name):
     import logging
 
@@ -6,36 +10,34 @@ def get_logger(name):
     return logger
 
 
-def wrap(pre, post, logger, level):
-    def decorate(func, *args):
-        def call(*args, **kwargs):
-            if pre:
-                pre(logger, level, func, *args, **kwargs)
-            result = func(*args, **kwargs)
-            if post:
-                post(logger, level, func, *args, **kwargs)
-            return result
+def logged(logger, level="debug"):
+    def outter(func):
+        log = f"{func.__name__} invoked"
 
-        return call
+        @wraps(func)
+        def inner(*args, **kwargs):
+            getattr(logger, level)(log)
+            return func(*args, **kwargs)
 
-    return decorate
+        @wraps(func)
+        async def inner_async(*args, **kwargs):
+            getattr(logger, level)(log)
+            return await func(*args, **kwargs)
 
+        if inspect.iscoroutinefunction(func):
+            return inner_async
+        return inner
 
-def trace_in(logger, level, func, *args, **kwargs):
-    getattr(logger, level)(f"Entering function: {func.__name__}")
-
-
-def trace_out(logger, level, func, *args, **kwargs):
-    getattr(logger, level)(f"Leaving function: {func.__name__}")
-
-
-def trace(logger, level="error"):
-    return wrap(trace_in, trace_out, logger, level)
+    return outter
 
 
 def info(logger):
-    return trace(logger, "info")
+    return logged(logger, level="info")
 
 
 def debug(logger):
-    return trace(logger, "debug")
+    return logged(logger, level="debug")
+
+
+def error(logger):
+    return logged(logger, level="error")

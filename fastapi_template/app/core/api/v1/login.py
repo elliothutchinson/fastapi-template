@@ -7,6 +7,7 @@ from starlette.requests import Request
 from starlette.responses import RedirectResponse
 from starlette.templating import Jinja2Templates
 
+from app.core import logger as trace
 from app.core.config import core_config
 from app.core.crud.user import update_user, update_user_private
 from app.core.logger import get_logger
@@ -30,6 +31,7 @@ base_url = f"{core_config.base_url}{core_config.api_v1}{core_config.login_path}"
 
 
 @router.post(core_config.token_path, response_model=Token)
+@trace.debug(logger)
 async def login_for_access_token(
     background_tasks: BackgroundTasks, form_data: OAuth2PasswordRequestForm = Depends()
 ):
@@ -46,6 +48,7 @@ async def login_for_access_token(
 
 
 @router.post("/forgot")
+@trace.debug(logger)
 async def email_password_reset_token(
     background_tasks: BackgroundTasks, email: EmailStr = Body(...)
 ):
@@ -55,6 +58,7 @@ async def email_password_reset_token(
 
 
 @router.get(core_config.reset_path)
+@trace.debug(logger)
 async def reset_token_form(token: str, request: Request):
     await get_user_from_reset_token(token=token)
     url = f"{base_url}{core_config.reset_path}"
@@ -68,6 +72,7 @@ async def reset_token_form(token: str, request: Request):
 
 
 @router.post(core_config.reset_path)
+@trace.debug(logger)
 async def reset_password_with_token(
     reset_password_token: ResetPasswordToken = Body(...),
 ):
@@ -79,5 +84,6 @@ async def reset_password_with_token(
 
 @router.get("/reset_success")
 @router.post("/reset_success")
+@trace.debug(logger)
 def reset_success():
     return {"detail": "password has been updated"}

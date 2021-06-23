@@ -1,5 +1,5 @@
 # fastapi_template
-A FastAPI project template with user support
+A FastAPI project template with user support and sample GraphQL endpoint
 
 Built with Python, FastAPI, Ariadne, Postgres, [Docker](https://github.com/tiangolo/uvicorn-gunicorn-fastapi-docker)
 
