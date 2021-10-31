@@ -16,11 +16,7 @@ from app.ext.todos.models import (
 
 logger = get_logger(__name__)
 
-types = [
-    get_populated_object_type(Todo),
-    get_populated_object_type(TodosResponse),
-    get_populated_object_type(TodoResponse),
-]
+types = [get_populated_object_type(obj) for obj in [Todo, TodosResponse, TodoResponse]]
 
 type_defs = load_schema_from_path(os.path.dirname(__file__))
 

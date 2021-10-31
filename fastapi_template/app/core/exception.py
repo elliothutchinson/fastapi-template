@@ -8,6 +8,8 @@ from starlette.status import (
 
 from app.core.config import core_config
 
+# todo: generalize into non http exception and add handler for converting to http exception
+
 not_found_exception = HTTPException(
     status_code=HTTP_404_NOT_FOUND, detail="Resource not found"
 )

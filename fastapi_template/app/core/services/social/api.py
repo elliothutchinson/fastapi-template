@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import Tuple
 
 from fastapi import APIRouter, BackgroundTasks, Body, Depends
@@ -7,12 +6,17 @@ from starlette.templating import Jinja2Templates
 
 from app.core import logger as trace
 from app.core.config import core_config
-from app.core.crud.user import create_user, update_user_private
+from app.core.crud.user import create_user
 from app.core.logger import get_logger
 from app.core.models.token import Token
-from app.core.models.user import User, UserCreate, UserUpdatePrivate
+from app.core.models.user import User, UserCreate
 from app.core.security.security import generate_login_token, get_active_user_by_email
-from app.core.services.email.service import send_welcome_email
+from app.core.services.event.models import Event
+from app.core.services.event.processor import (
+    LOGIN_EVENT,
+    USER_REGISTER_EVENT,
+    process_event,
+)
 
 from .config import social_config
 from .models import UserCreateSocial
@@ -72,7 +76,8 @@ async def register_user_by_social(
         full_name=email_name[1],
     )
     user = await create_user(user_in=user_create)
-    background_tasks.add_task(send_welcome_email, user=user)
+    event = Event(name=USER_REGISTER_EVENT, payload=user)
+    background_tasks.add_task(process_event, event=event)
     return user
 
 
@@ -84,9 +89,6 @@ async def swap_token(
 ):
     logger.debug(f"email_name: {email_name}")
     user = await get_active_user_by_email(email=email_name[0])
-    background_tasks.add_task(
-        update_user_private,
-        username=user.username,
-        user_update=UserUpdatePrivate(last_login=datetime.now()),
-    )
+    event = Event(name=LOGIN_EVENT, payload=user)
+    background_tasks.add_task(process_event, event=event)
     return generate_login_token(user=user, exp_min=core_config.access_token_expire_min)

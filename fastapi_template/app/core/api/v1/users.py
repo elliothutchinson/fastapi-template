@@ -25,12 +25,15 @@ from app.core.security.security import (
     get_user_from_verify_token,
 )
 from app.core.services.cache import fetch_data
-from app.core.services.email.service import send_welcome_email
+from app.core.services.event.models import Event
+from app.core.services.event.processor import USER_REGISTER_EVENT, process_event
 
 logger = get_logger(__name__)
 
 
 router = APIRouter()
+
+# todo: move base urls to config
 
 
 @router.get("/cache/{hello}")
@@ -76,7 +79,8 @@ async def update_user_data(
 @trace.debug(logger)
 async def register_user(user_in: UserCreate, background_tasks: BackgroundTasks):
     user = await create_user(user_in=user_in)
-    background_tasks.add_task(send_welcome_email, user=user)
+    event = Event(name=USER_REGISTER_EVENT, payload=user)
+    background_tasks.add_task(process_event, event=event)
     return user
 
 

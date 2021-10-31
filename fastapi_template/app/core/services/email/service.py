@@ -19,7 +19,7 @@ logger = get_logger(__name__)
 
 
 @trace.debug(logger)
-def send_email(
+async def send_email(
     email_to: EmailStr, subject_template="", html_template="", environment={}
 ):
     if not email_config.email_enabled:
@@ -42,7 +42,7 @@ def send_email(
 
 
 @trace.debug(logger)
-def send_welcome_email(user: User):
+async def send_welcome_email(user: User):
     logger.debug(f"sending welcome email to: {user.email}")
     subject = f"{core_config.project_name} - Verify account for user {user.username}"
     with open(Path(email_config.email_templates_dir) / "welcome_email.html") as f:
@@ -54,7 +54,7 @@ def send_welcome_email(user: User):
         f"{core_config.base_url}{core_config.get_current_api()}{core_config.users_path}"
     )
     link = f"{base_url}{core_config.verify_path}?token={token.access_token}"
-    send_email(
+    await send_email(
         email_to=user.email,
         subject_template=subject,
         html_template=template_str,
@@ -79,7 +79,7 @@ async def send_reset_email(user: User):
         f"{core_config.base_url}{core_config.get_current_api()}{core_config.login_path}"
     )
     link = f"{base_url}{core_config.reset_path}?token={token.access_token}"
-    send_email(
+    await send_email(
         email_to=user.email,
         subject_template=subject,
         html_template=template_str,

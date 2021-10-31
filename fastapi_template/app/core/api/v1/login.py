@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from fastapi import APIRouter, BackgroundTasks, Body, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import EmailStr
@@ -9,17 +7,22 @@ from starlette.templating import Jinja2Templates
 
 from app.core import logger as trace
 from app.core.config import core_config
-from app.core.crud.user import update_user, update_user_private
+from app.core.crud.user import update_user
 from app.core.logger import get_logger
 from app.core.models.token import Credential, ResetPasswordToken, Token
-from app.core.models.user import UserUpdate, UserUpdatePrivate
+from app.core.models.user import UserUpdate
 from app.core.security.security import (
     generate_login_token,
     get_active_user_by_email,
     get_authenticated_user,
     get_user_from_reset_token,
 )
-from app.core.services.email.service import send_reset_email
+from app.core.services.event.models import Event
+from app.core.services.event.processor import (
+    FORGOT_PASSWORD_EVENT,
+    LOGIN_EVENT,
+    process_event,
+)
 
 logger = get_logger(__name__)
 
@@ -39,11 +42,8 @@ async def login_for_access_token(
     user = await get_authenticated_user(
         username=form_data.username, password=cred.password
     )
-    background_tasks.add_task(
-        update_user_private,
-        username=user.username,
-        user_update=UserUpdatePrivate(last_login=datetime.now()),
-    )
+    event = Event(name=LOGIN_EVENT, payload=user)
+    background_tasks.add_task(process_event, event=event)
     return generate_login_token(user=user, exp_min=core_config.access_token_expire_min)
 
 
@@ -53,7 +53,8 @@ async def email_password_reset_token(
     background_tasks: BackgroundTasks, email: EmailStr = Body(...)
 ):
     user = await get_active_user_by_email(email=email)
-    background_tasks.add_task(send_reset_email, user=user)
+    event = Event(name=FORGOT_PASSWORD_EVENT, payload=user)
+    background_tasks.add_task(process_event, event=event)
     return {"detail": "email reset sent"}
 
 
