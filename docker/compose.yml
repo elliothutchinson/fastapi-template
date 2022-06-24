@@ -1,0 +1,58 @@
+# docker compose -p api_template -f docker/compose.yml build
+# docker compose -p api_template -f docker/compose.yml up
+# docker compose -p api_template -f docker/compose.yml down
+
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: ./docker/Dockerfile
+    command: ["uvicorn", "--reload", "--reload-dir", "./app", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    ports: 
+      - "8000:8000"
+    volumes:
+      - ../:/app:cached
+    env_file:
+      - ./env/core.env
+      - ./env/db.env
+      - ./env/email.env
+    depends_on:
+      test:
+        condition: service_completed_successfully
+      db_init:
+        condition: service_completed_successfully
+      db:
+        condition: service_started
+  test:
+    build:
+      context: ..
+      dockerfile: ./docker/test_Dockerfile
+    env_file:
+      - ./env/core.env
+      - ./env/db.env
+      - ./env/email.env
+  db_init:
+    build:
+      context: ..
+      dockerfile: ./docker/db_init_Dockerfile
+    env_file:
+      - ./env/db.env
+    depends_on:
+      - test
+      - db
+  db:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    volumes:
+      - ../_tmp/db/db:/var/lib/postgresql/data
+    env_file: ./env/db.env
+  db_admin:
+    image: dpage/pgadmin4
+    ports:
+      - "5052:5052"
+    volumes:
+      - ../_tmp/db/db_admin:/var/lib/pgadmin
+    env_file: ./env/db.env
+    depends_on:
+      - db

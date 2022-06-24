@@ -1,0 +1,6 @@
+pylint
+black
+vulture
+isort
+flake8
+autoflake

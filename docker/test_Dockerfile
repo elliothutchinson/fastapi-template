@@ -1,0 +1,21 @@
+# docker build . -t api-template/test -f docker/test_Dockerfile
+# docker run api-template/test
+
+FROM python:3.9-slim-bullseye
+
+WORKDIR /app/api
+
+COPY ./api/requirements/api_requirements.txt ./requirements/
+
+RUN pip install -r requirements/api_requirements.txt
+
+COPY ./api/requirements/test_requirements.txt ./requirements/
+
+RUN pip install -r requirements/test_requirements.txt
+
+COPY ./api/app ./app
+COPY ./api/tests ./tests
+COPY ./api/pytest.ini .
+
+CMD ["pytest", "-vv"]
+# CMD ["sleep", "infinity"]

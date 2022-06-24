@@ -1,0 +1,19 @@
+# docker build . -t api-template/db_init -f docker/db_init_Dockerfile
+# docker run api-template/db_init
+
+FROM python:3.9-slim-bullseye
+
+WORKDIR /app/api
+
+COPY ./api/requirements/db_init_requirements.txt ./requirements/
+
+RUN pip install -r requirements/db_init_requirements.txt
+
+COPY ./api/app/core/db ./app/core/db
+COPY ./api/app/core/model.py ./app/core/model.py
+COPY ./api/app/core/util.py ./app/core/util.py
+
+COPY ./api/prestart.py .
+
+CMD ["python", "prestart.py"]
+# CMD ["sleep", "infinity"]

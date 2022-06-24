@@ -1,0 +1,11 @@
+pydantic
+pydantic[email]
+orjson
+asyncpg
+passlib[bcrypt]
+pyjwt
+python-multipart
+fastapi
+uvicorn[standard]
+jinja2
+emails
