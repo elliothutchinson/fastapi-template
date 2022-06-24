@@ -7,8 +7,7 @@ from app.core.logger import get_logger
 
 logger = get_logger(__name__)
 
-# todo intercept requests for unverified users
-
+# todo: intercept requests for unverified, disabled, etc users
 
 class CustomHeaderMiddleware(BaseHTTPMiddleware):
     @trace.debug(logger)

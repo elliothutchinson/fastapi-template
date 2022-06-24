@@ -10,6 +10,8 @@ USER_DOC_TYPE = "user"
 
 logger = get_logger(__name__)
 
+# todo: user admin management, view, disable/enable
+
 
 def min_length_password(cls, v):
     if len(v.get_secret_value()) < core_config.password_min_length:
@@ -36,6 +38,7 @@ class UserCreate(UserPrivate):
 
 
 class User(UserPrivate):
+    verified_email: EmailStr = None
     disabled: bool = False
     verified: bool = False
     date_created: datetime
@@ -53,6 +56,7 @@ class UserUpdate(BaseModel):
 
 
 class UserUpdatePrivate(BaseModel):
+    verified_email: Optional[EmailStr]
     disabled: Optional[bool]
     verified: Optional[bool]
     last_login: Optional[datetime]
@@ -61,6 +65,7 @@ class UserUpdatePrivate(BaseModel):
 class UserUpdateDb(BaseModel):
     hashed_password: Optional[str]
     email: Optional[EmailStr]
+    verified_email: Optional[EmailStr]
     full_name: Optional[str]
     disabled: Optional[bool]
     verified: Optional[bool]

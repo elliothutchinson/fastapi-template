@@ -16,7 +16,9 @@ class CoreConfig(BaseModel):
     login_path: str = "/login"
     token_path: str = "/token"
     users_path: str = "/users"
+    forgot_path: str = "/forgot"
     reset_path: str = "/reset"
+    reset_success_path: str = "/reset_success"
     verify_path: str = "/verify"
     debug: bool = False
 

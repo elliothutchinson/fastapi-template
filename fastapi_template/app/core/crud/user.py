@@ -120,22 +120,21 @@ async def update_user_private_in_db(
 
 
 @trace.debug(logger)
-async def create_user(user_in: UserCreate):
+async def create_user(user_create: UserCreate):
     db_context = await get_db_context()
     existing_user = await get_user_by_email_from_db(
-        db_context=db_context, email=user_in.email
+        db_context=db_context, email=user_create.email
     )
     if existing_user:
         raise get_already_exists_exception("An account already exists with this email")
-    return await insert_user_in_db(db_context=db_context, user_in=user_in)
+    return await create_user_in_db(db_context=db_context, user_create=user_create)
 
 
-# todo: rename user_in to user_create, look at other naming in proj
 @trace.debug(logger)
-async def insert_user_in_db(db_context: DbContext, user_in: UserCreate):
-    doc_id = get_user_doc_id(user_in.username)
-    password_hash = get_password_hash(user_in.password)
+async def create_user_in_db(db_context: DbContext, user_create: UserCreate):
+    doc_id = get_user_doc_id(user_create.username)
+    password_hash = get_password_hash(user_create.password)
     user_db = UserDb(
-        **user_in.dict(), date_created=datetime.now(), hashed_password=password_hash
+        **user_create.dict(), date_created=datetime.now(), hashed_password=password_hash
     )
     return await insert(db_context=db_context, doc_id=doc_id, doc_in=user_db)

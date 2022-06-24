@@ -8,3 +8,7 @@ class Event(BaseModel):
     name: str
     payload: Any = None
     date_created: datetime = datetime.now()
+
+class EmailChange(BaseModel):
+    previous_email: str
+    next_email: str

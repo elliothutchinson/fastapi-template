@@ -42,5 +42,5 @@ def test_create_user():
     pass
 
 
-def test_insert_user_in_db():
+def test_create_user_in_db():
     pass

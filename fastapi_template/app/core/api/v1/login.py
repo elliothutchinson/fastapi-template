@@ -47,7 +47,7 @@ async def login_for_access_token(
     return generate_login_token(user=user, exp_min=core_config.access_token_expire_min)
 
 
-@router.post("/forgot")
+@router.post(core_config.forgot_path)
 @trace.debug(logger)
 async def email_password_reset_token(
     background_tasks: BackgroundTasks, email: EmailStr = Body(...)
@@ -83,8 +83,8 @@ async def reset_password_with_token(
     return RedirectResponse(url=f"{base_url}/reset_success")
 
 
-@router.get("/reset_success")
-@router.post("/reset_success")
+@router.get(core_config.reset_success_path)
+@router.post(core_config.reset_success_path)
 @trace.debug(logger)
 def reset_success():
     return {"detail": "password has been updated"}

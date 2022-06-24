@@ -18,6 +18,9 @@ from app.core.models.token import Token, TokenData
 from app.core.models.user import User
 from app.core.security.crypt import verify_password
 
+# todo: refactor token into token_utils
+# todo: save tokens so they can be revoked
+
 logger = get_logger(__name__)
 
 ALGORITHM = "HS256"

@@ -75,7 +75,7 @@ async def register_user_by_social(
         email=email_name[0],
         full_name=email_name[1],
     )
-    user = await create_user(user_in=user_create)
+    user = await create_user(user_create=user_create)
     event = Event(name=USER_REGISTER_EVENT, payload=user)
     background_tasks.add_task(process_event, event=event)
     return user

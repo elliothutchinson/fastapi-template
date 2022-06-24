@@ -9,18 +9,24 @@ logger = get_logger(__name__)
 
 
 USER_REGISTER_EVENT = "USER_REGISTER_EVENT"
+EMAIL_CHANGE_EVENT = "EMAIL_CHANGE_EVENT"
 FORGOT_PASSWORD_EVENT = "FORGOT_PASSWORD_EVENT"
 LOGIN_EVENT = "LOGIN_EVENT"
+FAILED_LOGIN_EVENT = "FAILED_LOGIN_EVENT"
 
 
 @trace.info(logger)
 async def process_event(event: Event):
     if event.name == USER_REGISTER_EVENT:
         await process_user_register_event(event=event)
+    elif event.name == EMAIL_CHANGE_EVENT:
+        await process_email_change_event(event=event)
     elif event.name == FORGOT_PASSWORD_EVENT:
         await process_forgot_password_event(event=event)
     elif event.name == LOGIN_EVENT:
         await process_login_event(event=event)
+    elif event.name == FAILED_LOGIN_EVENT:
+        await process_failed_login_event(event=event)
     else:
         logger.error(f"Unknown event `{event.name}`, skipping event")
 
@@ -28,6 +34,12 @@ async def process_event(event: Event):
 @trace.info(logger)
 async def process_user_register_event(event: Event):
     await send_welcome_email(user=event.payload)
+
+
+@trace.info(logger)
+async def process_email_change_event(event: Event):
+    # TODO: implement, send verify email to new email
+    pass
 
 
 @trace.info(logger)
@@ -41,3 +53,9 @@ async def process_login_event(event: Event):
         username=event.payload.username,
         user_update=UserUpdatePrivate(last_login=event.date_created),
     )
+
+
+@trace.info(logger)
+async def process_failed_login_event(event: Event):
+    # todo: implement
+    pass
