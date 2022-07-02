@@ -4,6 +4,7 @@ from pydantic import SecretStr
 
 from app.core.db import service as db_service
 from app.core.user import crud as user_crud
+from app.core.user import service as user_service
 from app.core.user.model import User
 
 from .crypt import verify_password
@@ -27,4 +28,11 @@ async def authenticate_user(username: str, password: SecretStr) -> Union[User, b
         password=password, password_hash=user_db.password_hash
     ):
         user = User(**user_db.dict())
+    return user
+
+
+async def get_active_user(username: str) -> User:
+    user = await user_service.get_user_data(username=username)
+    if user.disabled:
+        raise UserDisabledException("User is disabled")
     return user

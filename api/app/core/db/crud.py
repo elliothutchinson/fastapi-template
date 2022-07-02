@@ -42,12 +42,6 @@ async def create_doc(
     return doc
 
 
-# todo: partial update support
-
-
-# todo: transaction support
-
-
 async def update_doc(
     db_context: DbContext,
     doc_id: str,

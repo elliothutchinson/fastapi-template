@@ -1,43 +1,58 @@
 from datetime import datetime
+from re import template
 from typing import Any
 from uuid import uuid4
 
 from pydantic import EmailStr
 
+from app.core.api.email import service as email_service
+from app.core.config import get_core_config
 from app.core.event.model import EventDb
 
 from .model import User
+from .service import generate_verify_email_token
 
 USER_REGISTERED_EVENT = "USER_REGISTERED_EVENT"
-USER_VERIFIED_EMAIL_EVENT = "USER_VERIFIED_EMAIL_EVENT"
 USER_UPDATED_EMAIL_EVENT = "USER_UPDATED_EMAIL_EVENT"
 
 
 def register_user_events(event_processor):
     event_processor.add_event_handler(USER_REGISTERED_EVENT, send_welcome_email)
-    event_processor.add_event_handler(USER_VERIFIED_EMAIL_EVENT, mark_email_verified)
-    event_processor.add_event_handler(USER_UPDATED_EMAIL_EVENT, notify_previous_email)
     event_processor.add_event_handler(USER_UPDATED_EMAIL_EVENT, send_verify_email)
 
 
-# todo: implement
-async def send_welcome_email(payload: str):
-    pass
+async def send_welcome_email(payload: dict):
+    await send_verify_email(payload=payload, html_template="welcome_verify_email.html")
+    return True
 
 
-# todo: implement
-async def mark_email_verified(payload: Any):
-    pass
+async def send_verify_email(payload: dict, html_template: str = "verify_email.html", template_data: dict = None):
+    user = payload["user"]
+    core_config = get_core_config()
+    token = await generate_verify_email_token(
+        user=user, expire_min=core_config.verify_token_expire_min
+    )
+    base_url = (
+        f"{core_config.base_url}{core_config.get_current_api()}{core_config.user_path}"
+    )
+    link = f"{base_url}{core_config.verify_path}?token={token.access_token}"
 
+    if not template_data:
+        template_data = {
+            "project_name": core_config.project_name,
+            "username": user.username,
+        }
 
-# todo: implement
-async def notify_previous_email(payload: dict):
-    pass
+    template_data["link"] = link
 
+    await email_service.process_email(
+        username=user.username,
+        to_email=user.email,
+        html_template=html_template,
+        template_data=template_data
+    )
 
-# todo: implement
-async def send_verify_email(payload: dict):
-    pass
+    return True
 
 
 def user_registered_event(user: User) -> EventDb:
@@ -45,7 +60,7 @@ def user_registered_event(user: User) -> EventDb:
         event_id=str(uuid4()),
         event_name=USER_REGISTERED_EVENT,
         username=user.username,
-        payload=user.email,
+        payload={"user": user},
         date_created=datetime.now(),
     )
 
@@ -55,6 +70,6 @@ def user_updated_email_event(user: User, previous_email: EmailStr) -> EventDb:
         event_id=str(uuid4()),
         event_name=USER_UPDATED_EMAIL_EVENT,
         username=user.username,
-        payload={"previous_email": previous_email, "changed_email" : user.email},
+        payload={"previous_email": previous_email, "user": user},
         date_created=datetime.now(),
     )

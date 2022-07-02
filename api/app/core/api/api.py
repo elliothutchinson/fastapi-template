@@ -1,11 +1,14 @@
 from fastapi import APIRouter
 
 from app.core.api.v1 import login, user
+from app.core.config import get_core_config
+
+core_config = get_core_config()
 
 v1_router = APIRouter()
 
-v1_router.include_router(login.router, prefix="/login", tags=["login"])
-v1_router.include_router(user.router, prefix="/user", tags=["users"])
+v1_router.include_router(login.router, prefix=core_config.login_path, tags=["login"])
+v1_router.include_router(user.router, prefix=core_config.user_path, tags=["users"])
 
 api_router = APIRouter()
 

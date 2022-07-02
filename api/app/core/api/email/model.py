@@ -1,7 +1,7 @@
-from typing import Any
 from datetime import datetime
-from pydantic import BaseModel, EmailStr, SecretStr
+from typing import Any
 
+from pydantic import BaseModel, EmailStr, SecretStr
 
 EMAIL_DOC_TYPE = "email"
 

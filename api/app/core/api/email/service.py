@@ -1,16 +1,17 @@
+from datetime import datetime
 from pathlib import Path
-from uuid import uuid4
 from typing import Any
+from uuid import uuid4
 
 import emails
-from datetime import datetime
 from emails.template import JinjaTemplate
 from pydantic import EmailStr
+
+from app.core.db import service as db_service
 
 from .config import get_email_config
 from .crud import create_email
 from .model import EmailDb
-from app.core.db import service as db_service
 
 
 async def process_email(
@@ -59,17 +60,16 @@ async def save_email(
 
 
 async def send_email(
-    to_email: EmailStr, subject="", html_template=None, template_data={}
+    to_email: EmailStr, subject: str, html_template: str, template_data={}
 ):
     email_config = get_email_config()
 
     if not email_config.email_enabled:
         return
 
-    html = ""
-    if html_template:
-        with open(Path(email_config.email_templates_dir) / html_template) as f:
-            html = f.read()
+    html = None
+    with open(Path(email_config.email_templates_dir) / html_template) as f:
+        html = f.read()
 
     message = emails.Message(
         subject=JinjaTemplate(subject),

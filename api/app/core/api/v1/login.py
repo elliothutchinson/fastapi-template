@@ -1,21 +1,27 @@
-from fastapi import APIRouter, BackgroundTasks, Depends
+from fastapi import APIRouter, BackgroundTasks, Depends, Request
 from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.templating import Jinja2Templates
 from pydantic import SecretStr
 
 from app.core.api.model import ServerResponse
-from app.core.api.security.login.model import ForgottenPassword, PasswordResetToken
-from app.core.api.security.login.event import login_success_event, request_password_reset_event
-from app.core.api.security.login.service import login_user, reset_password
+from app.core.api.security.login.event import (
+    login_success_event,
+    login_refresh_event,
+    request_reset_password_event,
+    request_username_reminder_event,
+)
+from app.core.api.security.login.model import ForgottenPassword, ResetPasswordToken, ForgottenUsername
+from app.core.api.security.login.service import login_user, reset_password, refresh_token
 from app.core.api.security.token.model import AccessToken
 from app.core.config import get_core_config
 from app.core.event.service import process_event
+
+templates = Jinja2Templates(directory=get_core_config().templates_dir)
 
 core_config = get_core_config()
 
 router = APIRouter()
 
-#todo: look into rate limit
-# todo: lock after n failed attemps
 
 @router.post(core_config.token_path, response_model=AccessToken)
 async def login_for_access_token(
@@ -29,31 +35,51 @@ async def login_for_access_token(
     return access_token
 
 
-# forgot username
-# todo: implement
+@router.post(core_config.refresh_path, response_model=AccessToken)
+async def refresh_access_token(background_tasks: BackgroundTasks, token: str):
+    access_token, username = await refresh_token(token=token)
+    event = login_refresh_event(username=username)
+    background_tasks.add_task(process_event, event=event)
+    return access_token
 
 
-@router.post(core_config.forgot_path, response_model=ServerResponse)
+@router.post(core_config.forgot_password_path, response_model=ServerResponse)
 async def email_reset_password_token(
     background_tasks: BackgroundTasks, forgotten_password: ForgottenPassword
 ):
-    event = request_password_reset_event(username=forgotten_password.username)
+    event = request_reset_password_event(username=forgotten_password.username)
     background_tasks.add_task(process_event, event=event)
     return ServerResponse(message="Reset password email requested")
 
 
-# todo: implement
-# email reset link GET
+@router.get(core_config.reset_path)
+async def reset_token_form(token: str, request: Request):
+    base_url = (
+        f"{core_config.base_url}{core_config.get_current_api()}{core_config.login_path}"
+    )
+    url = f"{base_url}{core_config.reset_path}"
+    return templates.TemplateResponse(
+        "reset_password.html",
+        {
+            "request": request,
+            "url": url,
+            "token": token,
+        },
+    )
 
 
 @router.post(core_config.reset_path, response_model=ServerResponse)
-async def user_reset_password(password_reset_token: PasswordResetToken):
-    await reset_password(token=password_reset_token.token, password=password_reset_token.password)
+async def user_reset_password(reset_password_token: ResetPasswordToken):
+    await reset_password(
+        token=reset_password_token.token, password=reset_password_token.password
+    )
     return ServerResponse(message="Password has been reset")
 
 
-# refresh token support
-# todo: implement
-
-# reset password
-# todo: implement
+@router.post(core_config.forgot_username_path, response_model=ServerResponse)
+async def email_forgotten_username(
+    background_tasks: BackgroundTasks, forgotten_username: ForgottenUsername
+):
+    event = request_username_reminder_event(email=forgotten_username.email)
+    background_tasks.add_task(process_event, event=event)
+    return ServerResponse(message="Username reminder email requested")

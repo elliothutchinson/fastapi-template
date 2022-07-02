@@ -8,9 +8,9 @@ TOKEN_DOC_TYPE = "token"
 
 class AccessToken(BaseModel):
     token_type: str = "Bearer"
+    refresh_token: str = None
     access_token: str
-    # todo: refresh_token
-    # todo: expires_in
+    date_expires: datetime
 
 
 class TokenDb(BaseModel):

@@ -1,6 +1,6 @@
 import os
 from datetime import datetime
-from typing import List
+from typing import List, get_type_hints
 
 from pydantic import SecretStr
 
@@ -21,21 +21,42 @@ def convert_datetime_to_str(data: dict, skip: List[str]):
             data[key] = str(data[key])
 
 
-# todo: find way to populate type from default without passing default value
-# to prevent accidentally forgetting env var and using sensitive value from hardcoded default
-def populate_from_env_var(obj: PydanticModel):
-    for key in vars(obj):
-        value_default = getattr(obj, key)
-        value_type = type(value_default)
+# def populate_dict_from_env_var(obj: dict):
+#     new_obj = {}
+
+#     for key in obj:
+#         value_type = type(obj[key])
+#         value = os.getenv(key.upper(), None)
+
+#         if value is None:
+#             continue
+#         elif value_type in [int, float]:
+#             value = value_type(value)
+#         elif value_type is bool:
+#             value = value.lower() in ["1", "on", "t", "true", "y", "yes"]
+#         elif value_type is SecretStr:
+#             value = SecretStr(value)
+
+#         if value is not None:
+#             new_obj[key] = value
+
+#     return new_obj
+
+
+def populate_from_env_var(doc_model: PydanticModel) -> dict:
+    env = {}
+    type_hints = get_type_hints(doc_model)
+    for key in type_hints:
         value = os.getenv(key.upper(), None)
+        value_type = type_hints[key]
 
         if value is None:
-            value = value_default
-        elif value_type in [int, float]:
-            value = value_type(value)
+            continue
         elif value_type is bool:
-            value = value.lower() in ["1", "on", "t", "true", "y", "yes"]
-        elif value_type is SecretStr:
-            value = SecretStr(value)
+            env[key] = value.lower() in ["1", "on", "t", "true", "y", "yes"]
+        else:
+            env[key] = value_type(value)
 
-        setattr(obj, key, value)
+    return env
+
+

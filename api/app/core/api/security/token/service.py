@@ -23,10 +23,6 @@ oauth2_scheme = OAuth2PasswordBearer(
 )
 
 
-# todo: check token is not redacted
-# at service startup/out of request cycle refresh from db, check unexpired but redacted tokens, put in cache
-# when redacting token, add to cache
-# expire from cache when token would otherwise expire
 def get_verified_token_data(
     token: str, claim: str, data_model: Type[PydanticModel]
 ) -> TokenData:
@@ -37,7 +33,7 @@ def get_verified_token_data(
 
 
 def verify_token(
-    token: str, claim: str, data_model: Type[PydanticModel]
+    token: str, claim: str, data_model: Type[PydanticModel] = None
 ) -> Union[TokenData, bool]:
     token_data = False
     try:
@@ -48,7 +44,8 @@ def verify_token(
         if decoded_jwt.get("claim", None) != claim:
             raise InvalidTokenError("Token claim didn't match expected claim")
 
-        decoded_jwt["data"] = data_model(**decoded_jwt["data"])
+        if data_model:
+            decoded_jwt["data"] = data_model(**decoded_jwt["data"])
 
         token_data = TokenData(**decoded_jwt)
     except InvalidTokenError as e:
@@ -79,7 +76,7 @@ async def generate_token(
     encoded_jwt = jwt.encode(
         token_data_dict, core_config.secret_key.get_secret_value(), algorithm=ALGORITHM
     )
-    return AccessToken(access_token=encoded_jwt)
+    return AccessToken(access_token=encoded_jwt, date_expires=date_expires)
 
 
 async def save_user_token(

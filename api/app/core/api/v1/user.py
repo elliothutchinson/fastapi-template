@@ -1,11 +1,12 @@
 from fastapi import APIRouter, BackgroundTasks, Depends
 
+from app.core.api.model import ServerResponse
 from app.core.api.security.login import service as login_service
 from app.core.config import get_core_config
 from app.core.event.service import process_event
 from app.core.user.event import user_registered_event, user_updated_email_event
 from app.core.user.model import User, UserCreate, UserUpdate
-from app.core.user.service import get_user_data, register_user, update_user_data
+from app.core.user.service import get_user_data, register_user, update_user_data, verify_email
 
 core_config = get_core_config()
 
@@ -27,7 +28,9 @@ async def read_current_user(login_user: User = Depends(login_service.get_login_u
 
 @router.put("/", response_model=User)
 async def update_user(
-    user_update: UserUpdate, background_tasks: BackgroundTasks, login_user: User = Depends(login_service.get_login_user)
+    user_update: UserUpdate,
+    background_tasks: BackgroundTasks,
+    login_user: User = Depends(login_service.get_login_user),
 ):
     user = await update_user_data(username=login_user.username, user_update=user_update)
     if user_update.email:
@@ -36,4 +39,7 @@ async def update_user(
     return user
 
 
-# todo: verify email token
+@router.get(core_config.verify_path, response_model=ServerResponse)
+async def verify_user_email(token: str):
+    await verify_email(token=token)
+    return ServerResponse(message="Email has been verified")

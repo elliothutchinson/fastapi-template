@@ -26,7 +26,17 @@ async def get_events_for_user(db_context: DbContext, username: str) -> List[Even
     )
 
 
-# todo: get events by name for user
+async def get_events_by_name_for_user(
+    db_context: DbContext, event_name: str, username: str
+) -> List[EventDb]:
+    return await db_crud.query_doc(
+        db_context=db_context,
+        doc_type=EVENT_DOC_TYPE,
+        doc_model=EventDb,
+        where_clause="doc->>'event_name'=$1 and doc->>'username'=$2",
+        where_values=[event_name, username],
+        order_by="doc->>'date_created'",
+    )
 
 
 async def get_events_by_name(db_context: DbContext, event_name: str) -> List[EventDb]:
