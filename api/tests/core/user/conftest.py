@@ -41,7 +41,7 @@ def user_update_private_dict():
 @pytest.fixture
 def updated_user_dict():
     return {
-        "type": "user",
+        "type": "USER",
         "username": "tester",
         "first_name": "joe_update",
         "last_name": "test_update",
@@ -60,7 +60,7 @@ def updated_user_dict():
 @pytest.fixture
 def updated_user_private_dict():
     return {
-        "type": "user",
+        "type": "USER",
         "username": "tester",
         "first_name": "joe",
         "last_name": "test",

@@ -6,10 +6,10 @@ import jwt
 from fastapi.security import OAuth2PasswordBearer
 from jwt.exceptions import InvalidTokenError
 
+from app.core import util
 from app.core.config import get_core_config
 from app.core.db import service as db_service
 from app.core.model import PydanticModel
-from app.core.util import convert_datetime_to_str, get_utc_now
 
 from .crud import create_token, get_valid_tokens_for_user, update_token
 from .model import AccessToken, InvalidTokenException, TokenData, TokenDb, TokenUpdateDb
@@ -37,7 +37,6 @@ def verify_token(
 ) -> Union[TokenData, bool]:
     token_data = False
     try:
-        core_config = get_core_config()
         decoded_jwt = jwt.decode(
             token, core_config.secret_key.get_secret_value(), algorithms=[ALGORITHM]
         )
@@ -56,7 +55,7 @@ def verify_token(
 async def generate_token(
     token_type: str, expire_min: float, username: str, data: Any
 ) -> AccessToken:
-    date_created = get_utc_now()
+    date_created = util.get_utc_now()
     date_expires = date_created + timedelta(minutes=expire_min)
     token_db = await save_user_token(
         token_type=token_type,
@@ -70,9 +69,8 @@ async def generate_token(
     )
 
     token_data_dict = token_data.dict()
-    convert_datetime_to_str(data=token_data_dict, skip=["exp", "nbf", "iat"])
+    util.convert_datetime_to_str(data=token_data_dict, skip=["exp", "nbf", "iat"])
 
-    core_config = get_core_config()
     encoded_jwt = jwt.encode(
         token_data_dict, core_config.secret_key.get_secret_value(), algorithm=ALGORITHM
     )
@@ -95,7 +93,7 @@ async def save_user_token(
 
 async def redact_user_token(token_db: TokenDb) -> TokenDb:
     db_context = db_service.get_db_context()
-    token_update_db = TokenUpdateDb(date_redacted=get_utc_now())
+    token_update_db = TokenUpdateDb(date_redacted=util.get_utc_now())
     return await update_token(
         db_context=db_context, token_db=token_db, token_update_db=token_update_db
     )

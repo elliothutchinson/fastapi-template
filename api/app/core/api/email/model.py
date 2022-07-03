@@ -3,7 +3,7 @@ from typing import Any
 
 from pydantic import BaseModel, EmailStr, SecretStr
 
-EMAIL_DOC_TYPE = "email"
+EMAIL_DOC_TYPE = "EMAIL"
 
 
 class EmailConfig(BaseModel):

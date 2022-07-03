@@ -5,9 +5,9 @@ from pydantic import BaseModel, EmailStr, SecretStr, constr, validator
 
 from app.core.config import get_core_config
 
-USER_DOC_TYPE = "user"
-
 core_config = get_core_config()
+
+USER_DOC_TYPE = "USER"
 
 
 def min_length_password(cls, value):

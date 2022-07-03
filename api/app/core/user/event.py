@@ -1,6 +1,4 @@
 from datetime import datetime
-from re import template
-from typing import Any
 from uuid import uuid4
 
 from pydantic import EmailStr
@@ -15,6 +13,8 @@ from .service import generate_verify_email_token
 USER_REGISTERED_EVENT = "USER_REGISTERED_EVENT"
 USER_UPDATED_EMAIL_EVENT = "USER_UPDATED_EMAIL_EVENT"
 
+core_config = get_core_config()
+
 
 def register_user_events(event_processor):
     event_processor.add_event_handler(USER_REGISTERED_EVENT, send_welcome_email)
@@ -26,9 +26,10 @@ async def send_welcome_email(payload: dict):
     return True
 
 
-async def send_verify_email(payload: dict, html_template: str = "verify_email.html", template_data: dict = None):
+async def send_verify_email(
+    payload: dict, html_template: str = "verify_email.html", template_data: dict = None
+):
     user = payload["user"]
-    core_config = get_core_config()
     token = await generate_verify_email_token(
         user=user, expire_min=core_config.verify_token_expire_min
     )
@@ -49,7 +50,7 @@ async def send_verify_email(payload: dict, html_template: str = "verify_email.ht
         username=user.username,
         to_email=user.email,
         html_template=html_template,
-        template_data=template_data
+        template_data=template_data,
     )
 
     return True

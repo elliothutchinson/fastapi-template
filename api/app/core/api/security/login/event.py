@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Any
 from uuid import uuid4
+
 from pydantic import EmailStr
 
 from app.core.api.email import service as email_service
@@ -17,6 +18,8 @@ LOGIN_REFRESH_EVENT = "LOGIN_REFRESH_EVENT"
 LOGIN_FAIL_EVENT = "LOGIN_FAIL_EVENT"
 REQUEST_RESET_PASSWORD_EVENT = "REQUEST_RESET_PASSWORD_EVENT"
 REQUEST_USERNAME_REMINDER_EVENT = "REQUEST_USERNAME_REMINDER_EVENT"
+
+core_config = get_core_config()
 
 
 def register_login_events(event_processor):
@@ -57,7 +60,6 @@ async def send_reset_password_email(payload: dict) -> bool:
         return
 
     email_config = get_email_config()
-    core_config = get_core_config()
 
     token = await generate_reset_token(
         user=user, expire_min=email_config.email_reset_token_expire_min
@@ -88,8 +90,6 @@ async def send_username_reminder_email(payload: dict) -> bool:
         user = await user_service.get_user_data_by_email(email=payload["email"])
     except:
         return
-
-    core_config = get_core_config()
 
     await email_service.process_email(
         username=user.username,

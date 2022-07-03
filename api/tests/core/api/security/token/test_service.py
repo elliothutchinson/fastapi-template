@@ -13,7 +13,7 @@ from tests.mock import MIN_IN_YEAR, create_core_config, doc_row
 
 def test_get_verified_token_data_valid(login_token, token_data):
     actual = uut.get_verified_token_data(
-        token=login_token, claim="login_token", data_model=User
+        token=login_token, claim="LOGIN_TOKEN", data_model=User
     )
     assert actual == token_data
 
@@ -24,19 +24,19 @@ def test_get_verified_token_data_invalid(login_token):
 
 
 def test_verify_token_valid(login_token, token_data):
-    actual = uut.verify_token(token=login_token, claim="login_token", data_model=User)
+    actual = uut.verify_token(token=login_token, claim="LOGIN_TOKEN", data_model=User)
     assert actual == token_data
 
 
 @patch(
-    "app.core.api.security.token.service.get_utc_now",
+    "app.core.api.security.token.service.util.get_utc_now",
     Mock(return_value=date_created()),
 )
 async def test_verify_token_invalid_token(db_context, user, mocker):
     mocker.patch("app.core.db.service.get_db_context", Mock(return_value=db_context))
     access_token = await generate_login_token(user=user)
     actual = uut.verify_token(
-        token=access_token.access_token, claim="login_token", data_model=User
+        token=access_token.access_token, claim="LOGIN_TOKEN", data_model=User
     )
     assert actual is False
 
@@ -47,7 +47,7 @@ def test_verify_token_invalid_claim(login_token):
 
 
 @patch(
-    "app.core.api.security.token.service.get_utc_now",
+    "app.core.api.security.token.service.util.get_utc_now",
     Mock(return_value=date_created()),
 )
 @patch("app.core.api.security.token.service.uuid4", Mock(return_value=UUID(token_id())))
@@ -60,23 +60,22 @@ def test_verify_token_invalid_claim(login_token):
     ),
 )
 async def test_generate_token(db_context, user, login_token, mocker):
-    # mocker.patch("app.core.db.service.get_db_context", Mock(return_value=db_context))
-    # expected = AccessToken(access_token=login_token)
-    # actual = await uut.generate_token(
-    #     token_type="login_token",
-    #     expire_min=MIN_IN_YEAR * 100,
-    #     username=user.username,
-    #     data=user,
-    # )
-    # assert actual == expected
-    pass
+    mocker.patch("app.core.db.service.get_db_context", Mock(return_value=db_context))
+    expected = AccessToken(access_token=login_token, date_expires=date_expires())
+    actual = await uut.generate_token(
+        token_type="LOGIN_TOKEN",
+        expire_min=MIN_IN_YEAR * 100,
+        username=user.username,
+        data=user,
+    )
+    assert actual == expected
 
 
 @patch("app.core.api.security.token.service.uuid4", Mock(return_value=UUID(token_id())))
 async def test_save_user_token(db_context, user, token_db, mocker):
     mocker.patch("app.core.db.service.get_db_context", Mock(return_value=db_context))
     actual = await uut.save_user_token(
-        token_type="login_token",
+        token_type="LOGIN_TOKEN",
         username=user.username,
         date_created=date_created(),
         date_expires=date_expires(),
@@ -85,7 +84,7 @@ async def test_save_user_token(db_context, user, token_db, mocker):
 
 
 @patch(
-    "app.core.api.security.token.service.get_utc_now",
+    "app.core.api.security.token.service.util.get_utc_now",
     Mock(return_value=date_created()),
 )
 async def test_redact_user_token(db_context, token_db, mocker):
@@ -96,7 +95,7 @@ async def test_redact_user_token(db_context, token_db, mocker):
 
 
 @patch(
-    "app.core.api.security.token.service.get_utc_now",
+    "app.core.api.security.token.service.util.get_utc_now",
     Mock(return_value=date_created()),
 )
 @pytest.mark.expected_data([doc_row(token_db_data())])

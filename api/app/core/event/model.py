@@ -4,7 +4,7 @@ from typing import Any
 
 from pydantic import BaseModel
 
-EVENT_DOC_TYPE = "event"
+EVENT_DOC_TYPE = "EVENT"
 
 
 class EventDb(BaseModel):
@@ -14,78 +14,6 @@ class EventDb(BaseModel):
     username: str = None
     payload: Any
     date_created: datetime
-
-
-"""
-login success event:
-user logs in successfully
-submit login success event
-save event in db ->
-{
-  name: LOGIN_SUCCESS
-  username: tester
-  date_created: 2022-06-06
-  payload: null
-}
-process event -> update user last login date
-------------------------
-
-login fail event:
-user login invalid credential
-exception handler
-submit login fail event
-save event in db ->
-{
-  name: LOGIN_FAIL
-  username: tester
-  date_created: 2022-06-06
-  payload: null
-}
-process event -> noop atm, may implement temp disable, block ip, etc
-------------------------
-
-user registered event:
-user signs up
-submit user register event
-save event in db
-{
-  name: USER_REGISTERED
-  username: tester
-  date_created: 2022-06-06
-  payload: {
-      email: tester@example.com
-  }
-}
-process event -> send welcome email, provision s3 bucket folder, etc
-------------------------
-
-user forgot password:
-user clicks forgot password
-submit forgot password event
-{
-  name: FORGOT_PASSWORD
-  username: tester
-  date_created: 2022-06-06
-  payload: null
-}
-process event -> send email reset token
-------------------------
-
-admin creates user/admin user:
-admin creates user
-submit admin created user event
-{
-  name: ADMIN.USER_REGISTERED
-  username: tester
-  date_created: 2022-06-06
-  payload: {
-      email: tester@example.com
-  }
-}
-process event -> send welcome email create password
-------------------------
-
-"""
 
 
 class EventProcessor:

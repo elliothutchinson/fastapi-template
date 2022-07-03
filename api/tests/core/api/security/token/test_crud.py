@@ -7,7 +7,7 @@ from tests.mock import doc_row
 
 def test_get_token_doc_id():
     actual = uut.get_token_doc_id(token_id="test")
-    assert actual == "token::test"
+    assert actual == "TOKEN::test"
 
 
 async def test_create_token(db_context, token_db):

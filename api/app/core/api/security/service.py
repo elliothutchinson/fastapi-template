@@ -3,8 +3,7 @@ from typing import Union
 from pydantic import SecretStr
 
 from app.core.db import service as db_service
-from app.core.user import crud as user_crud
-from app.core.user import service as user_service
+from app.core.user import crud as user_crud, service as user_service
 from app.core.user.model import User
 
 from .crypt import verify_password

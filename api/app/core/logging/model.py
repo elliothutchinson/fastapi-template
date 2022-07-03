@@ -3,7 +3,7 @@ from typing import Any
 
 from pydantic import BaseModel
 
-LOG_DOC_TYPE = "log"
+LOG_DOC_TYPE = "LOG"
 
 
 class Logger:

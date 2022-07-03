@@ -32,7 +32,7 @@ def user_update_private(user_update_private_dict):
 
 def test_get_user_doc_id(username):
     actual = uut.get_user_doc_id(username)
-    assert actual == "user::tester"
+    assert actual == "USER::tester"
 
 
 @pytest.mark.expected_data(doc_row_user())

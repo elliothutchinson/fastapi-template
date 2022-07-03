@@ -3,7 +3,7 @@ from typing import Any
 
 from pydantic import BaseModel
 
-TOKEN_DOC_TYPE = "token"
+TOKEN_DOC_TYPE = "TOKEN"
 
 
 class AccessToken(BaseModel):

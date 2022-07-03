@@ -9,7 +9,7 @@ from app.core.user import model as uut
 @pytest.fixture
 def user_db():
     return {
-        "type": "user",
+        "type": "USER",
         "username": "tester",
         "first_name": "joe",
         "last_name": "test",
@@ -42,7 +42,7 @@ def user_update_db():
 
 
 def test_USER_DOC_TYPE():
-    assert uut.USER_DOC_TYPE == "user"
+    assert uut.USER_DOC_TYPE == "USER"
 
 
 def test_min_length_password_when_valid():
@@ -304,7 +304,7 @@ def test_UserDb_default_fields(user_db):
 
     assert len(actual) == len(user_db) + default_fields
 
-    assert actual["type"] == "user"
+    assert actual["type"] == "USER"
     assert actual["verified_email"] == None
     assert actual["roles"] == []
     assert actual["disabled"] == False

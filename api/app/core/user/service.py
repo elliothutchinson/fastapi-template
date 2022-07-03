@@ -1,9 +1,16 @@
 from pydantic import EmailStr
+
 from app.core.api.security.token import service as token_service
 from app.core.api.security.token.model import AccessToken
 from app.core.db import service as db_service
 
-from .crud import create_user, get_user, get_user_by_email, update_user, update_user_private
+from .crud import (
+    create_user,
+    get_user,
+    get_user_by_email,
+    update_user,
+    update_user_private,
+)
 from .model import User, UserCreate, UserUpdate, UserUpdatePrivate
 
 VERIFY_TOKEN = "VERIFY_TOKEN"

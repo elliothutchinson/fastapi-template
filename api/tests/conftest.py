@@ -4,23 +4,16 @@ import pytest
 
 from app.core.db.model import DbConfig, DbContext
 from app.core.user.model import User
-from tests.mock import mock_connection_factory, password_hash_of_plaintext_test
+from tests.mock import (
+    create_db_config_dict,
+    mock_connection_factory,
+    password_hash_of_plaintext_test,
+)
 
 
 @pytest.fixture
 def db_config_dict():
-    return {
-        "db_host": "db",
-        "db_port": 5432,
-        "db_root_user": "root",
-        "db_root_password": "password",
-        "db_root_database": "template1",
-        "db_app_user": "app",
-        "db_app_password": "password",
-        "db_app_database": "api",
-        "db_table": "docs",
-        "db_test_table": "test_docs",
-    }
+    return create_db_config_dict()
 
 
 @pytest.fixture

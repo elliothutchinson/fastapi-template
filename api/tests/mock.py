@@ -24,6 +24,21 @@ def password_hash_of_plaintext_test():
     return "$2b$12$/7OKph0Xyk.a86Vre53f3eKRKYlaNUuOPdrhuqSZrdMhEziMuNjdi"
 
 
+def create_db_config_dict():
+    return {
+        "db_host": "db",
+        "db_port": 5432,
+        "db_root_user": "root",
+        "db_root_password": "password",
+        "db_root_database": "template1",
+        "db_app_user": "app",
+        "db_app_password": "password",
+        "db_app_database": "api",
+        "db_table": "docs",
+        "db_test_table": "test_docs",
+    }
+
+
 def create_core_config(override={}):
     cc = {
         "username_min_length": 1,

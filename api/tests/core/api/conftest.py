@@ -19,9 +19,9 @@ def date_expires():
 
 def token_db_data():
     return {
-        "type": "token",
+        "type": "TOKEN",
         "token_id": token_id(),
-        "token_type": "login_token",
+        "token_type": "LOGIN_TOKEN",
         "username": "tester",
         "date_created": date_created(),
         "date_expires": date_expires(),
@@ -40,14 +40,15 @@ def token_data_dict(token_db_dict, user):
         "metadata": token_db_dict,
         "data": user,
         "sub": "tester",
-        "claim": "login_token",
+        "claim": "LOGIN_TOKEN",
         "exp": date_expires(),
     }
 
 
 @pytest.fixture
 def login_token():
-    return "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJtZXRhZGF0YSI6eyJ0eXBlIjoidG9rZW4iLCJ0b2tlbl9pZCI6IjYzM2MyMGE5LTY3OTUtNDhhMC1hNzU5LWY5YzA0YzY5ZmRhOSIsInRva2VuX3R5cGUiOiJsb2dpbl90b2tlbiIsInVzZXJuYW1lIjoidGVzdGVyIiwiZGF0ZV9jcmVhdGVkIjoiMjAyMC0wMS0wMSAwMDowMDowMCswMDowMCIsImRhdGVfZXhwaXJlcyI6IjIxMjAtMDEtMDIgMDA6MDA6MDArMDA6MDAiLCJkYXRlX3JlZGFjdGVkIjpudWxsfSwiZGF0YSI6eyJ1c2VybmFtZSI6InRlc3RlciIsImZpcnN0X25hbWUiOiJqb2UiLCJsYXN0X25hbWUiOiJ0ZXN0IiwiZW1haWwiOiJ0ZXN0ZXJAZXhhbXBsZS5jb20iLCJ2ZXJpZmllZF9lbWFpbCI6InRlc3RlckBleGFtcGxlLmNvbSIsInJvbGVzIjpbInVzZXIiXSwiZGlzYWJsZWQiOmZhbHNlLCJ2ZXJpZmllZCI6dHJ1ZSwiZGF0ZV9jcmVhdGVkIjoiMjAyMC0wMS0wMSAwMDowMDowMCIsImRhdGVfbW9kaWZpZWQiOiIyMDIwLTAxLTAxIDAwOjAwOjAwIiwibGFzdF9sb2dpbiI6IjIwMjAtMDEtMDEgMDA6MDA6MDAifSwic3ViIjoidGVzdGVyIiwiY2xhaW0iOiJsb2dpbl90b2tlbiIsImV4cCI6NDczMzU5NjgwMH0.flo5kMEtHkNk-Rucfeh8BcUKizX8ILo0lzCpnKZZKAw"
+    # return "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJtZXRhZGF0YSI6eyJ0eXBlIjoidG9rZW4iLCJ0b2tlbl9pZCI6IjYzM2MyMGE5LTY3OTUtNDhhMC1hNzU5LWY5YzA0YzY5ZmRhOSIsInRva2VuX3R5cGUiOiJsb2dpbl90b2tlbiIsInVzZXJuYW1lIjoidGVzdGVyIiwiZGF0ZV9jcmVhdGVkIjoiMjAyMC0wMS0wMSAwMDowMDowMCswMDowMCIsImRhdGVfZXhwaXJlcyI6IjIxMjAtMDEtMDIgMDA6MDA6MDArMDA6MDAiLCJkYXRlX3JlZGFjdGVkIjpudWxsfSwiZGF0YSI6eyJ1c2VybmFtZSI6InRlc3RlciIsImZpcnN0X25hbWUiOiJqb2UiLCJsYXN0X25hbWUiOiJ0ZXN0IiwiZW1haWwiOiJ0ZXN0ZXJAZXhhbXBsZS5jb20iLCJ2ZXJpZmllZF9lbWFpbCI6InRlc3RlckBleGFtcGxlLmNvbSIsInJvbGVzIjpbInVzZXIiXSwiZGlzYWJsZWQiOmZhbHNlLCJ2ZXJpZmllZCI6dHJ1ZSwiZGF0ZV9jcmVhdGVkIjoiMjAyMC0wMS0wMSAwMDowMDowMCIsImRhdGVfbW9kaWZpZWQiOiIyMDIwLTAxLTAxIDAwOjAwOjAwIiwibGFzdF9sb2dpbiI6IjIwMjAtMDEtMDEgMDA6MDA6MDAifSwic3ViIjoidGVzdGVyIiwiY2xhaW0iOiJsb2dpbl90b2tlbiIsImV4cCI6NDczMzU5NjgwMH0.flo5kMEtHkNk-Rucfeh8BcUKizX8ILo0lzCpnKZZKAw"
+    return "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJtZXRhZGF0YSI6eyJ0eXBlIjoiVE9LRU4iLCJ0b2tlbl9pZCI6IjYzM2MyMGE5LTY3OTUtNDhhMC1hNzU5LWY5YzA0YzY5ZmRhOSIsInRva2VuX3R5cGUiOiJMT0dJTl9UT0tFTiIsInVzZXJuYW1lIjoidGVzdGVyIiwiZGF0ZV9jcmVhdGVkIjoiMjAyMC0wMS0wMSAwMDowMDowMCswMDowMCIsImRhdGVfZXhwaXJlcyI6IjIxMjAtMDEtMDIgMDA6MDA6MDArMDA6MDAiLCJkYXRlX3JlZGFjdGVkIjpudWxsfSwiZGF0YSI6eyJ1c2VybmFtZSI6InRlc3RlciIsImZpcnN0X25hbWUiOiJqb2UiLCJsYXN0X25hbWUiOiJ0ZXN0IiwiZW1haWwiOiJ0ZXN0ZXJAZXhhbXBsZS5jb20iLCJ2ZXJpZmllZF9lbWFpbCI6InRlc3RlckBleGFtcGxlLmNvbSIsInJvbGVzIjpbInVzZXIiXSwiZGlzYWJsZWQiOmZhbHNlLCJ2ZXJpZmllZCI6dHJ1ZSwiZGF0ZV9jcmVhdGVkIjoiMjAyMC0wMS0wMSAwMDowMDowMCIsImRhdGVfbW9kaWZpZWQiOiIyMDIwLTAxLTAxIDAwOjAwOjAwIiwibGFzdF9sb2dpbiI6IjIwMjAtMDEtMDEgMDA6MDA6MDAifSwic3ViIjoidGVzdGVyIiwiY2xhaW0iOiJMT0dJTl9UT0tFTiIsImV4cCI6NDczMzU5NjgwMH0.avGzS8C_icEaoIRz4fojPBrzbcfYcvgsdLJP5yWUjYk"
 
 
 @pytest.fixture

@@ -2,7 +2,6 @@ from unittest.mock import Mock, patch
 from uuid import UUID
 
 from app.core.api.security.login import service as uut
-from app.core.api.security.token.model import AccessToken
 from tests.core.api.conftest import date_created, token_id
 from tests.mock import MIN_IN_YEAR, create_core_config
 
@@ -12,7 +11,7 @@ async def test_login_user():
 
 
 @patch(
-    "app.core.api.security.token.service.get_utc_now",
+    "app.core.api.security.token.service.util.get_utc_now",
     Mock(return_value=date_created()),
 )
 @patch("app.core.api.security.token.service.uuid4", Mock(return_value=UUID(token_id())))

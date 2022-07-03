@@ -3,8 +3,6 @@ import os
 import pytest
 from pydantic import BaseModel
 
-from app.core import util as uut
-
 
 @pytest.fixture
 def some_class_dict():

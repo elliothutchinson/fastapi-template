@@ -4,21 +4,26 @@ from fastapi.templating import Jinja2Templates
 from pydantic import SecretStr
 
 from app.core.api.model import ServerResponse
+from app.core.api.security.login import service as login_service
 from app.core.api.security.login.event import (
-    login_success_event,
     login_refresh_event,
+    login_success_event,
     request_reset_password_event,
     request_username_reminder_event,
 )
-from app.core.api.security.login.model import ForgottenPassword, ResetPasswordToken, ForgottenUsername
-from app.core.api.security.login.service import login_user, reset_password, refresh_token
+from app.core.api.security.login.model import (
+    ForgottenPassword,
+    ForgottenUsername,
+    ResetPasswordToken,
+)
 from app.core.api.security.token.model import AccessToken
 from app.core.config import get_core_config
 from app.core.event.service import process_event
 
-templates = Jinja2Templates(directory=get_core_config().templates_dir)
-
 core_config = get_core_config()
+
+templates = Jinja2Templates(directory=core_config.templates_dir)
+
 
 router = APIRouter()
 
@@ -27,7 +32,7 @@ router = APIRouter()
 async def login_for_access_token(
     background_tasks: BackgroundTasks, form_data: OAuth2PasswordRequestForm = Depends()
 ):
-    access_token = await login_user(
+    access_token = await login_service.login_user(
         username=form_data.username, password=SecretStr(form_data.password)
     )
     event = login_success_event(username=form_data.username)
@@ -37,7 +42,7 @@ async def login_for_access_token(
 
 @router.post(core_config.refresh_path, response_model=AccessToken)
 async def refresh_access_token(background_tasks: BackgroundTasks, token: str):
-    access_token, username = await refresh_token(token=token)
+    access_token, username = await login_service.refresh_token(token=token)
     event = login_refresh_event(username=username)
     background_tasks.add_task(process_event, event=event)
     return access_token
@@ -70,7 +75,7 @@ async def reset_token_form(token: str, request: Request):
 
 @router.post(core_config.reset_path, response_model=ServerResponse)
 async def user_reset_password(reset_password_token: ResetPasswordToken):
-    await reset_password(
+    await login_service.reset_password(
         token=reset_password_token.token, password=reset_password_token.password
     )
     return ServerResponse(message="Password has been reset")
