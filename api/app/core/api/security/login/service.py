@@ -22,7 +22,7 @@ async def login_user(username: str, password: SecretStr) -> AccessToken:
     return await generate_login_token(user=user, with_refresh_token=True)
 
 
-async def get_login_user(token: str = Depends(token_service.oauth2_scheme)):
+async def get_login_user(token: str = Depends(token_service.oauth2_scheme)) -> User:
     token_data = get_verified_login_token_data(token=token)
     return token_data.data
 
@@ -81,7 +81,7 @@ async def generate_reset_token(user: User, expire_min: float) -> AccessToken:
     )
 
 
-async def reset_password(token: str, password: SecretStr):
+async def reset_password(token: str, password: SecretStr) -> bool:
     token_data = token_service.get_verified_token_data(
         token=token, claim=RESET_TOKEN, data_model=User
     )

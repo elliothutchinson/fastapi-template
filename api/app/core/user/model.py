@@ -10,7 +10,7 @@ core_config = get_core_config()
 USER_DOC_TYPE = "USER"
 
 
-def min_length_password(cls, value):
+def min_length_password(cls, value) -> SecretStr:
     if len(value.get_secret_value()) < core_config.password_min_length:
         raise ValueError(
             f"password needs to be at least {core_config.password_min_length} characters"
@@ -18,7 +18,7 @@ def min_length_password(cls, value):
     return value
 
 
-def matching_password(cls, value, values):
+def matching_password(cls, value, values) -> SecretStr:
     if (
         not "password_match" in values
         or not values["password_match"]

@@ -21,14 +21,14 @@ def register_user_events(event_processor):
     event_processor.add_event_handler(USER_UPDATED_EMAIL_EVENT, send_verify_email)
 
 
-async def send_welcome_email(payload: dict):
+async def send_welcome_email(payload: dict) -> bool:
     await send_verify_email(payload=payload, html_template="welcome_verify_email.html")
     return True
 
 
 async def send_verify_email(
     payload: dict, html_template: str = "verify_email.html", template_data: dict = None
-):
+) -> bool:
     user = payload["user"]
     token = await generate_verify_email_token(
         user=user, expire_min=core_config.verify_token_expire_min

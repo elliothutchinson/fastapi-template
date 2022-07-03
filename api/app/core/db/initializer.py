@@ -11,14 +11,14 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def init_db():
+def init_db() -> bool:
     logger.info("init_db()")
     db_config = get_db_config()
     asyncio.run(config_db(db_config=db_config))
     return True
 
 
-async def config_db(db_config: DbConfig):
+async def config_db(db_config: DbConfig) -> bool:
     logger.info("config_db()")
     root_user_connect = get_db_connect_root_user(db_config=db_config)
     root_user_context = get_db_context(db_connect=root_user_connect)
@@ -41,7 +41,7 @@ async def config_db(db_config: DbConfig):
     return True
 
 
-async def create_user_if_not_exists(db_context: DbContext):
+async def create_user_if_not_exists(db_context: DbContext) -> bool:
     logger.info("create_user_if_not_exists()")
     user_created = False
     if not await user_exists(db_context=db_context):
@@ -50,7 +50,7 @@ async def create_user_if_not_exists(db_context: DbContext):
     return user_created
 
 
-async def user_exists(db_context: DbContext):
+async def user_exists(db_context: DbContext) -> bool:
     logger.info("user_exists()")
     user_exists = False
     async with db_context.connection() as conn:
@@ -63,7 +63,7 @@ async def user_exists(db_context: DbContext):
     return user_exists
 
 
-async def create_user(db_context: DbContext):
+async def create_user(db_context: DbContext) -> bool:
     logger.info("create_user()")
     async with db_context.connection() as conn:
         await conn.execute(
@@ -74,7 +74,7 @@ async def create_user(db_context: DbContext):
 
 async def create_db_if_not_exists(
     app_user_context: DbContext, root_user_context: DbContext
-):
+) -> bool:
     logger.info("create_db_if_not_exists()")
     db_created = False
     if not await db_exists(db_context=app_user_context):
@@ -83,7 +83,7 @@ async def create_db_if_not_exists(
     return db_created
 
 
-async def db_exists(db_context: DbContext):
+async def db_exists(db_context: DbContext) -> bool:
     logger.info("db_exists()")
     db_exists = False
     try:
@@ -95,7 +95,7 @@ async def db_exists(db_context: DbContext):
     return db_exists
 
 
-async def create_db(db_context: DbContext):
+async def create_db(db_context: DbContext) -> bool:
     logger.info("create_db()")
     async with db_context.connection() as conn:
         await conn.execute(
@@ -104,7 +104,7 @@ async def create_db(db_context: DbContext):
     return True
 
 
-async def create_table_if_not_exists(db_context: DbContext, table: str):
+async def create_table_if_not_exists(db_context: DbContext, table: str) -> bool:
     logger.info("create_table_if_not_exists()")
     table_created = False
     if not await table_exists(db_context=db_context, table=table):
@@ -113,7 +113,7 @@ async def create_table_if_not_exists(db_context: DbContext, table: str):
     return table_created
 
 
-async def table_exists(db_context: DbContext, table: str):
+async def table_exists(db_context: DbContext, table: str) -> bool:
     logger.info("table_exists()")
     table_created = False
     async with db_context.connection() as conn:
@@ -127,7 +127,7 @@ async def table_exists(db_context: DbContext, table: str):
     return table_created
 
 
-async def create_table(db_context: DbContext, table: str):
+async def create_table(db_context: DbContext, table: str) -> bool:
     logger.info("create_table()")
     async with db_context.connection() as conn:
         await conn.execute(

@@ -63,7 +63,7 @@ async def generate_verify_email_token(user: User, expire_min: float) -> AccessTo
     )
 
 
-async def verify_email(token: str):
+async def verify_email(token: str) -> bool:
     token_data = token_service.get_verified_token_data(
         token=token, claim=VERIFY_TOKEN, data_model=User
     )

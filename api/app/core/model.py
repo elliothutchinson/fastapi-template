@@ -26,5 +26,5 @@ class CoreConfig(BaseModel):
     current_api: str
     api_v1: str
 
-    def get_current_api(self):
+    def get_current_api(self) -> str:
         return getattr(self, self.current_api.lower())
