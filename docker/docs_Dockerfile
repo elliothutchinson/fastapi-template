@@ -9,13 +9,11 @@ COPY ./api/requirements/api_requirements.txt ./requirements/
 
 RUN pip install -r requirements/api_requirements.txt
 
-COPY ./api/requirements/test_requirements.txt ./requirements/
+COPY ./api/requirements/dev_requirements.txt ./requirements/
 
-RUN pip install -r requirements/test_requirements.txt
+RUN pip install -r requirements/dev_requirements.txt
 
 COPY ./api/app ./app
-COPY ./api/tests ./tests
-COPY ./api/pytest.ini .
 
-CMD ["pytest", "--cov=app", "tests", "--cov-branch", "--cov-report", "html:coverage"]
+CMD ["pdoc", "--html", "--output-dir", "docs", "app"]
 # CMD ["sleep", "infinity"]

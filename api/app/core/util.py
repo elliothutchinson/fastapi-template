@@ -12,6 +12,9 @@ def get_utc_now() -> datetime:
 
 
 def convert_datetime_to_str(data: dict, skip: List[str]):
+    """
+    mutates provided data dict, stringifying any datetime objects
+    """
     for key in data:
         if key in skip:
             continue

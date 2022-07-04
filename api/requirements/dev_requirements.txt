@@ -4,3 +4,4 @@ vulture
 isort
 flake8
 autoflake
+pdoc3

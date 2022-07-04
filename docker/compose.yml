@@ -27,6 +27,18 @@ services:
     build:
       context: ..
       dockerfile: ./docker/test_Dockerfile
+    volumes:
+      - ../_tmp/html/coverage:/app/api/coverage
+    env_file:
+      - ./env/core.env
+      - ./env/db.env
+      - ./env/email.env
+  docs:
+    build:
+      context: ..
+      dockerfile: ./docker/docs_Dockerfile
+    volumes:
+      - ../_tmp/html/docs:/app/api/docs
     env_file:
       - ./env/core.env
       - ./env/db.env

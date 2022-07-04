@@ -12,3 +12,18 @@
 * partial update support
 * transaction support
 * get_verified_token check for redacted tokens (nonexpired redacted token, user disabled)
+
+
+# testing with coverage
+`pytest --cov=app tests --cov-branch --cov-report term-missing`
+`pytest --cov=app tests --cov-branch --cov-report html:coverage`
+
+# mutation testing
+`mutmut run`
+`mutmut html`
+
+# generate docs
+`pdoc --html --output-dir docs app`
+
+# before docker compose
+`rm -r ../_tmp/html/`
