@@ -24,7 +24,7 @@ oauth2_scheme = OAuth2PasswordBearer(
 
 
 def get_verified_token_data(
-    token: str, claim: str, data_model: Type[PydanticModel]
+    token: str, claim: str, data_model: Type[PydanticModel] = None
 ) -> TokenData:
     token_data = verify_token(token=token, claim=claim, data_model=data_model)
     if not token_data:

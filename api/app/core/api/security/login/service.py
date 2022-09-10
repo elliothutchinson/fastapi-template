@@ -63,6 +63,7 @@ async def refresh_token(token: str) -> AccessToken:
         claim=REFRESH_TOKEN,
     )
     username = token_data.data["username"]
+    print(token_data)
 
     refreshed_user = await security_service.get_active_user(username=username)
 

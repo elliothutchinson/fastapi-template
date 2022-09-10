@@ -138,7 +138,8 @@ def login_refresh_event(username: str) -> EventDb:
     return EventDb(
         event_id=str(uuid4()),
         event_name=LOGIN_REFRESH_EVENT,
-        username={"username": username},
+        username=username,
+        payload={"username": username},
         date_created=datetime.now(),
     )
 
