@@ -8,9 +8,7 @@
 * create default admin user, temp token first startup, require pw change
 * support admin provision user for others
 * admin endpoint
-* look into rate limit
 * lock after n failed login attemps
-* transaction support
 * perf tests
 
 

@@ -37,7 +37,7 @@ async def update_user(
     )
     if user_update.email:
         event = user_updated_email_event(user=user, previous_email=user.verified_email)
-    background_tasks.add_task(process_event, event=event)
+        background_tasks.add_task(process_event, event=event)
     return user
 
 

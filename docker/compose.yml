@@ -26,7 +26,7 @@ services:
   test:
     build:
       context: ..
-      dockerfile: ./docker/test_Dockerfile
+      dockerfile: ./docker/Dockerfile.test
     volumes:
       - ../_tmp/html/coverage:/app/api/coverage
     env_file:
@@ -36,7 +36,7 @@ services:
   docs:
     build:
       context: ..
-      dockerfile: ./docker/docs_Dockerfile
+      dockerfile: ./docker/Dockerfile.docs
     volumes:
       - ../_tmp/html/docs:/app/api/docs
     env_file:
@@ -46,7 +46,7 @@ services:
   db_init:
     build:
       context: ..
-      dockerfile: ./docker/db_init_Dockerfile
+      dockerfile: ./docker/Dockerfile.db_init
     env_file:
       - ./env/db.env
     depends_on:
