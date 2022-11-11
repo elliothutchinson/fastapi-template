@@ -1,0 +1,13 @@
+[tool.black]
+line-length=88
+
+[tool.isort]
+profile='black'
+line_length=88
+
+[tool.vulture]
+ignore_decorators=["@app.exception_handler"]
+min_confidence=80
+paths=["app", "tests"]
+sort_by_size=true
+verbose=false

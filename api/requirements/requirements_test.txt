@@ -1,0 +1,7 @@
+mongomock-motor
+mutmut
+pytest
+pytest-asyncio
+pytest-cov
+pytest-mock
+requests

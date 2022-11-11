@@ -1,0 +1,69 @@
+# docker compose -p fastapi-beanie-poc -f docker/compose.yml build
+# docker compose -p fastapi-beanie-poc -f docker/compose.yml up
+# docker compose -p fastapi-beanie-poc -f docker/compose.yml down
+
+services:
+
+  api:
+    build:
+      context: ..
+      dockerfile: ./docker/Dockerfile
+    command: ["uvicorn", "--reload", "--reload-dir", "./app", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../:/app:cached
+    env_file:
+      - ./env/api.env
+      - ./env/db.env
+    depends_on:
+      db:
+        condition: service_started
+      cache:
+        condition: service_started
+
+  db:
+    image: mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - ../_data/db:/data/db
+    env_file:
+      - ./env/db.env
+
+  db-admin:
+    image: mongo-express
+    restart: always
+    ports:
+      - "8001:8081"
+    env_file:
+      - ./env/db.env
+    depends_on:
+      - db
+
+  cache:
+    image: redis
+    restart: always
+    command:
+      - /bin/sh
+      - -c
+      - redis-server --save 60 1 --loglevel warning --requirepass "$${REDIS_PASSWORD:?REDIS_PASSWORD variable is not set}"
+      # - redis-server --save 60 1 --requirepass "$${REDIS_PASSWORD:?REDIS_PASSWORD variable is not set}"
+      # - redis-server --save 60 1 --loglevel debug
+    ports:
+      - "6379:6379"
+    volumes:
+      - ../_data/cache:/data
+    env_file:
+      - ./env/db.env
+
+  cache-admin:
+    image: rediscommander/redis-commander:latest
+    restart: always
+    ports:
+      - "8002:8081"
+    env_file:
+      - ./env/db.env
+    depends_on:
+      - cache
