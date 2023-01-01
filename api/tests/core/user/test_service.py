@@ -5,7 +5,7 @@ import pytest
 
 from app.core.exception import DataConflictException, ResourceNotFoundException
 from app.core.user import service as uut
-from app.core.user.model import UserUpdate
+from app.core.user.model import UserUpdate, UserUpdatePrivate
 from tests.util import password_hash_str
 
 
@@ -24,7 +24,8 @@ async def test_fetch_user_from_db(_setup_db_user_db, _setup_cache, user_db):
 async def test_fetch_user_not_found(_setup_db, _setup_cache):
 
     with pytest.raises(
-        ResourceNotFoundException, match=f"Resource not found for username 'tester'"
+        ResourceNotFoundException,
+        match=f"User resource not found for username 'tester'",
     ):
         await uut.fetch_user("tester")
 
@@ -103,5 +104,38 @@ async def test_update_user_optional_fields(_setup_db_user_db, _setup_cache, user
     expected["date_modified"] = datetime(2020, 1, 5, 0, 0)
 
     actual = await uut.update_user(username="tester", user_update=user_update)
+
+    assert actual.dict() == expected
+
+
+async def test_update_user_private(_setup_db_user_db, _setup_cache, user_db):
+    user_update_private_dict = {
+        "verified_email": "tester1@example.com",
+        "roles": ["ADMIN", "USER"],
+        "disabled": True,
+        "last_login": datetime(2020, 1, 4, 0, 0),
+    }
+    user_update_private = UserUpdatePrivate(**user_update_private_dict)
+
+    expected = user_db.dict()
+    expected.update(**user_update_private_dict)
+
+    actual = await uut.update_user_private(
+        username="tester", user_update_private=user_update_private
+    )
+
+    assert actual.dict() == expected
+
+
+async def test_update_user_private_optional_fields(
+    _setup_db_user_db, _setup_cache, user_db
+):
+    user_update_private = UserUpdatePrivate()
+
+    expected = user_db.dict()
+
+    actual = await uut.update_user_private(
+        username="tester", user_update_private=user_update_private
+    )
 
     assert actual.dict() == expected

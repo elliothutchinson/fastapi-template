@@ -1,7 +1,7 @@
 # docker build . -t fastapi-beanie-poc/api -f docker/Dockerfile 
 # docker run -d -p 8000:8000 fastapi-beanie-poc/api
 
-FROM python:3.10-slim-bullseye
+FROM python:3.11-slim-bullseye
 
 WORKDIR /app/api
 

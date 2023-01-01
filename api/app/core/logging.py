@@ -23,8 +23,10 @@ class ContextFilter(logging.Filter):
         return value
 
     def filter(self, record):
-        if isinstance(record.msg, Exception):
-            record.msg = str(record.msg)
+        try:
+            msg = str(record.msg)
+        except Exception:
+            msg = "Incompatible log message"
 
         json = {
             "date": datetime.utcnow().isoformat(),
@@ -32,7 +34,7 @@ class ContextFilter(logging.Filter):
             "pathname": record.pathname,
             "funcName": record.funcName,
             "lineno": record.lineno,
-            "msg": record.msg,
+            "msg": msg,
             "request_ip": self.from_context("request_ip", "n/a"),
             "request_id": self.from_context("request_id", "n/a"),
             "thread_name": f"{record.threadName} - {record.thread}",

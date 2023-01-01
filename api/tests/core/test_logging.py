@@ -83,22 +83,18 @@ def test_ContextFilter_filter_msg_string(_context_vars, log_record):
     "app.core.logging.datetime",
     Mock(utcnow=Mock(return_value=datetime(2020, 1, 1, 0, 0, tzinfo=timezone.utc))),
 )
-def test_ContextFilter_filter_msg_exception(_context_vars, log_record):
-    try:
-        raise ValueError("test exception")
-    except ValueError as e:
-        log_record["msg"] = e
-
-    expected = log_record.copy()
-    expected["msg"] = str(expected["msg"])
-
+def test_ContextFilter_filter_msg_string_not_supported(_context_vars, log_record):
     mock_record = Mock(**log_record, threadName="threadName", thread="12345")
+    mock_record.configure_mock(msg=Mock(__str__=lambda: 1 / 0))
+
+    log_record["msg"] = "Incompatible log message"
+
     context_filter = uut.ContextFilter()
 
     actual = context_filter.filter(mock_record)
 
     assert actual is True
-    assert mock_record.json == orjson.dumps(expected).decode()
+    assert mock_record.json == orjson.dumps(log_record).decode()
 
 
 def test_log_format_msg_string(log_record):

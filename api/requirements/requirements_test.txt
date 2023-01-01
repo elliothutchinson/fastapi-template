@@ -1,7 +1,8 @@
+factory_boy
+httpx
 mongomock-motor
 mutmut
 pytest
 pytest-asyncio
 pytest-cov
 pytest-mock
-requests

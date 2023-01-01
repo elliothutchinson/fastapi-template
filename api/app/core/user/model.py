@@ -70,6 +70,13 @@ class UserUpdate(BaseModel):
     _matching_password = validator("password", allow_reuse=True)(matching_password)
 
 
+class UserUpdatePrivate(BaseModel):
+    verified_email: Optional[EmailStr]
+    roles: Optional[List[str]]
+    disabled: Optional[bool]
+    last_login: Optional[datetime]
+
+
 class UserDb(Document):
     username: Indexed(str, unique=True)
     first_name: str

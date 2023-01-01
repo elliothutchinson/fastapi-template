@@ -11,6 +11,15 @@
 
 ## Overview
 
+### Todo
+
+* ui app
+* perf tests
+* pylint
+* sonarqube
+* jenkins
+* psycopg/jsonb, sqlmodel, sqlalchemy, alembic
+
 ### POC exploring FastAPI with Beanie
 
 * User auth support
@@ -25,6 +34,9 @@
 * FastAPI
 * Pydantic
 * Beanie
+* Pytest
+* Factory Boy
+* Locust
 
 ## Setup
 
@@ -32,7 +44,7 @@
 
 * Docker
 * Docker Compose
-* Python 3.10 for local development
+* Python 3.11 for local development
 
 ### Local setup
 

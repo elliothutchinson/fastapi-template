@@ -13,7 +13,7 @@ from app.core.exception import (
 )
 from app.core.security.token import generate_token, revoke_token, validate_token
 from app.core.user import service as user_service
-from app.core.user.model import User
+from app.core.user.model import User, UserUpdatePrivate
 
 from .crypt import verify_password
 
@@ -34,9 +34,13 @@ class AuthToken(BaseModel):
     refresh_token_expires_at: Optional[datetime]
 
 
-# todo: update last login on success
 async def user_login(username: str, password: SecretStr) -> AuthToken:
-    user = await get_api_user(username=username, password=password)
+    api_user = await get_api_user(username=username, password=password)
+    user_update = await user_service.update_user_private(
+        username=api_user.username,
+        user_update_private=UserUpdatePrivate(last_login=datetime.now()),
+    )
+    user = User(**user_update.dict())
 
     access_token, access_token_expires_at = generate_token(
         claim=ACCESS_TOKEN,

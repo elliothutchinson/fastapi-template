@@ -76,6 +76,10 @@ def test_AuthToken(access_token, refresh_token):
     "app.core.security.token.utc_now",
     Mock(return_value=datetime(2020, 1, 1, 0, 0, tzinfo=timezone.utc)),
 )
+@patch(
+    "app.core.security.auth.datetime",
+    Mock(now=Mock(return_value=datetime(2020, 1, 3, 0, 0))),
+)
 async def test_user_login(_setup_db_user_db, _setup_cache, access_token, refresh_token):
     expected = uut.AuthToken(
         access_token=access_token,

@@ -228,6 +228,36 @@ def test_UserUpdate_invalid_password_match():
         uut.UserUpdate(**user_update_dict)
 
 
+def test_UserUpdatePrivate_optional_fields():
+    user_update_private_dict = {}
+
+    expected = {
+        "verified_email": None,
+        "roles": None,
+        "disabled": None,
+        "last_login": None,
+    }
+
+    actual = uut.UserUpdatePrivate(**user_update_private_dict)
+
+    assert actual == expected
+
+
+def test_UserUpdatePrivate():
+    user_update_private_dict = {
+        "verified_email": "tester@example.com",
+        "roles": ["USER", "ADMIN"],
+        "disabled": False,
+        "last_login": datetime(2020, 1, 1, 0, 0),
+    }
+
+    expected = user_update_private_dict
+
+    actual = uut.UserUpdatePrivate(**user_update_private_dict)
+
+    assert actual == expected
+
+
 def test_UserDb_optional_fields():
     user_db_dict = {
         "username": "tester",

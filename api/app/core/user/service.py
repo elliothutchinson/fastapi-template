@@ -9,7 +9,7 @@ from app.core.exception import DataConflictException, ResourceNotFoundException
 from app.core.logging import get_logger
 from app.core.security import crypt
 
-from .model import USER_CACHE_PREFIX, UserCreate, UserDb, UserUpdate
+from .model import USER_CACHE_PREFIX, UserCreate, UserDb, UserUpdate, UserUpdatePrivate
 
 logger = get_logger(__name__)
 
@@ -34,7 +34,9 @@ async def fetch_user(username: str) -> UserDb:
             )
 
     if not user_db:
-        raise ResourceNotFoundException(f"Resource not found for username '{username}'")
+        raise ResourceNotFoundException(
+            f"User resource not found for username '{username}'"
+        )
 
     return user_db
 
@@ -49,7 +51,7 @@ async def create_user(user_create: UserCreate, roles: List[str] = []) -> UserDb:
     )
 
     try:
-        await user_db.save()
+        await user_db.insert()
     except DuplicateKeyError as e:
         logger.error(e)
         raise DataConflictException("Email or username already exists")
@@ -75,7 +77,28 @@ async def update_user(username: str, user_update: UserUpdate) -> UserDb:
 
     user_db.date_modified = datetime.now()
 
-    await user_db.save()
+    await user_db.replace()
+
+    await cache.delete_entity(prefix=USER_CACHE_PREFIX, key=username)
+
+    return user_db
+
+
+async def update_user_private(
+    username: str, user_update_private: UserUpdatePrivate
+) -> UserDb:
+    user_db = await UserDb.find_one(UserDb.username == username)
+
+    if user_update_private.verified_email:
+        user_db.verified_email = user_update_private.verified_email
+    if user_update_private.roles:
+        user_db.roles = user_update_private.roles
+    if user_update_private.disabled is not None:
+        user_db.disabled = user_update_private.disabled
+    if user_update_private.last_login:
+        user_db.last_login = user_update_private.last_login
+
+    await user_db.replace()
 
     await cache.delete_entity(prefix=USER_CACHE_PREFIX, key=username)
 

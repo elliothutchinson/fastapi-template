@@ -2,13 +2,14 @@ from unittest.mock import AsyncMock, Mock, patch
 
 from app.core.db import initialize as uut
 from app.core.security.token import RevokedTokenDb
+from app.core.todo.model import TodoDb, TodoListDb
 from app.core.user.model import UserDb
 
 
 def test_doc_models():
     actual = uut.doc_models()
 
-    assert actual == [UserDb, RevokedTokenDb]
+    assert actual == [UserDb, RevokedTokenDb, TodoListDb, TodoDb]
 
 
 @patch("app.core.db.initialize.init_beanie", AsyncMock())

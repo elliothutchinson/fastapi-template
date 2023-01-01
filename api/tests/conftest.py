@@ -1,5 +1,7 @@
 import os
+from datetime import datetime
 from unittest.mock import AsyncMock, Mock
+from uuid import UUID
 
 import pytest
 from beanie import init_beanie
@@ -7,7 +9,8 @@ from fastapi.testclient import TestClient
 from mongomock_motor import AsyncMongoMockClient
 from pydantic import SecretStr
 
-from app.core.security.token import RevokedTokenDb
+from app.core.db.initialize import doc_models
+from app.core.todo.model import Todo, TodoCreate, TodoDb, TodoListCreate, TodoListDb
 from app.core.user.model import User, UserCreate, UserDb, UserUpdate
 from app.main import app
 from tests.util import (
@@ -77,7 +80,7 @@ def user_update():
 async def _setup_db():
     client = AsyncMongoMockClient()
     await init_beanie(
-        document_models=[UserDb, RevokedTokenDb],
+        document_models=doc_models(),
         database=client.get_database(name="testdb"),
     )
 
@@ -159,3 +162,57 @@ def refresh_token_id():
 def auth_headers(access_token):
 
     return {"Authorization": f"Bearer {access_token}"}
+
+
+@pytest.fixture
+def todo_list_dict():
+
+    return {
+        "todo_list_id": UUID("7eb80ffa-b954-4c57-8fdf-5bc66fdc31de"),
+        "list_name": "home",
+        "username": "tester",
+        "date_created": datetime(2020, 1, 1, 0, 0),
+        "date_modified": None,
+    }
+
+
+@pytest.fixture
+def todo_list_create(todo_list_dict):
+
+    return TodoListCreate(**todo_list_dict)
+
+
+@pytest.fixture
+async def _setup_db_todo_list_db(_setup_db, todo_list_dict):
+    await TodoListDb(**todo_list_dict).save()
+
+
+@pytest.fixture
+def todo_dict():
+
+    return {
+        "todo_id": UUID("bff1beef-79a6-45c4-984b-0af9f6d64675"),
+        "todo_list_id": UUID("7eb80ffa-b954-4c57-8fdf-5bc66fdc31de"),
+        "description": "wash dogs",
+        "completed": False,
+        "username": "tester",
+        "date_created": datetime(2020, 1, 1, 0, 0),
+        "date_modified": None,
+    }
+
+
+@pytest.fixture
+def todo_create(todo_dict):
+
+    return TodoCreate(**todo_dict)
+
+
+@pytest.fixture
+def todo(todo_dict):
+
+    return Todo(**todo_dict)
+
+
+@pytest.fixture
+async def _setup_db_todo_db(_setup_db_todo_list_db, todo_dict):
+    await TodoDb(**todo_dict).save()
