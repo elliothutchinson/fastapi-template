@@ -128,7 +128,13 @@ docker compose -p fastapi-beanie-poc -f docker/compose.yml up
 <from api dir>
 pytest
 
+pytest --cov=app tests --cov-branch --cov-report xml:coverage.xml
+update coverage.xml <source>/usr/src/app</source>
+
 pytest --cov=app tests --cov-branch --cov-report html:coverage
+
+docker compose -p fastapi-beanie-poc -f docker/compose.yml --profile sonar up
+docker compose -p fastapi-beanie-poc -f docker/compose.yml --profile sonar-scanner up
 
 mutmut run
 mutmut html

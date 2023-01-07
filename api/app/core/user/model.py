@@ -25,7 +25,7 @@ def min_length_password(cls, value) -> SecretStr:
 def matching_password(cls, value, values) -> SecretStr:
     del cls
     if (
-        not "password_match" in values
+        "password_match" not in values
         or not values["password_match"]
         or value.get_secret_value() != values["password_match"].get_secret_value()
     ):

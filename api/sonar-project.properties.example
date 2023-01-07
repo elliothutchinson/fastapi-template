@@ -1,0 +1,19 @@
+sonar.projectKey=fastapi_template
+sonar.projectName=FastAPI Template
+sonar.projectVersion=1.0
+
+sonar.scm.disabled=true
+# sonar.scm.provider=git
+
+sonar.host.url=http://sonar:9000
+sonar.login=YOUR_GENERATED_KEY
+# sonar.login=admin
+# sonar.password=password # deprecated, may be removed at some point
+ 
+sonar.projectBaseDir=/usr/src
+sonar.sources=./app
+sonar.tests=./tests
+
+sonar.python.version=3.11
+sonar.python.coverage.reportPaths=coverage.xml
+

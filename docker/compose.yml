@@ -67,3 +67,42 @@ services:
       - ./env/db.env
     depends_on:
       - cache
+
+  sonar:
+    image: sonarqube:community
+    ports:
+      - "8003:9000"
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_logs:/opt/sonarqube/logs
+    env_file:
+      - ./env/sonar.env
+    depends_on:
+      sonar-db:
+        condition: service_started
+    profiles:
+      - sonar
+
+  sonar-db:
+    image: postgres
+    volumes:
+      - ../_data/sonar-db:/var/lib/postgresql/data
+    env_file:
+      - ./env/sonar.env
+    profiles:
+      - sonar
+
+  sonar-scanner:
+    image: sonarsource/sonar-scanner-cli
+    volumes:
+      - ../api:/usr/src
+    depends_on:
+      - sonar
+    profiles:
+      - sonar-scanner
+
+volumes:
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_logs:
