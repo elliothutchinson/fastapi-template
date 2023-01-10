@@ -34,6 +34,7 @@ def some_class_dict():
 
 @pytest.fixture
 def _some_class_env(some_class_dict):
+    # pylint: disable=duplicate-code
     new_env = convert_to_env_vars(some_class_dict)
     original_env = dict(os.environ)
     os.environ.update(new_env)

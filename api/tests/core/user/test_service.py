@@ -25,7 +25,7 @@ async def test_fetch_user_not_found(_setup_db, _setup_cache):
 
     with pytest.raises(
         ResourceNotFoundException,
-        match=f"User resource not found for username 'tester'",
+        match="User resource not found for username 'tester'",
     ):
         await uut.fetch_user("tester")
 

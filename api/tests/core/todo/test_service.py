@@ -78,6 +78,7 @@ async def test_create_todo_list(_setup_db, todo_list_create, todo_list_dict):
 async def test_create_todo_list_already_exists(
     _setup_db_todo_list_db, todo_list_create
 ):
+    # pylint: disable=line-too-long
 
     with pytest.raises(
         DataConflictException,
@@ -136,6 +137,8 @@ async def test_update_todo_list_empty_update(_setup_db_todo_list_db, todo_list_d
 
 
 async def test_update_todo_list_not_exist(_setup_db, todo_list_dict):
+    # pylint: disable=line-too-long
+
     todo_list_update = TodoListUpdate(list_name="yard")
 
     with pytest.raises(
@@ -161,6 +164,8 @@ async def test_delete_todo_list(_setup_db_todo_list_db, todo_list_dict):
 
 
 async def test_delete_todo_list_not_exist(_setup_db, todo_list_dict):
+    # pylint: disable=line-too-long
+
     with pytest.raises(
         ResourceNotFoundException,
         match=f"Todo list resource not found with id '{todo_list_dict['todo_list_id']}'",
@@ -254,7 +259,7 @@ async def test_fetch_todos_all(todo_dbs):
     Mock(now=Mock(return_value=datetime(2020, 1, 2, 0, 0))),
 )
 async def test_update_todo(_setup_db_todo_db, todo_list_db, todo_dict):
-    todo_list = await TodoListDb(
+    await TodoListDb(
         **todo_list_db.dict(exclude={"todo_list_id", "id"}),
         todo_list_id=UUID("c24819d4-d088-457f-85b4-d5a6642ec4bc"),
     ).save()

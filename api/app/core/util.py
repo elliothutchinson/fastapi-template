@@ -21,7 +21,7 @@ def convert_timestamp_to_ttl(timestamp: int) -> int:
 
 def convert_datetime_to_str(data: dict, skip: List[str] = None):
     """
-    mutates provided data dict, stringifying any datetime objects not provided in skip list
+    mutates provided data dict, stringifying datetime objects not provided in skip list
     """
     if skip is None:
         skip = []

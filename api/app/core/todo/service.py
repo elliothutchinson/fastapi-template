@@ -31,7 +31,7 @@ async def create_todo_list(
     except DuplicateKeyError as dke:
         logger.error(dke)
         raise DataConflictException(
-            f"Todo list resource already exists with id '{todo_list_create.todo_list_id}'"
+            f"Todo list resource already exists with id '{todo_list_create.todo_list_id}'"  # pylint: disable=line-too-long
         ) from dke
 
     return todo_list_db

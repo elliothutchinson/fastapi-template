@@ -3,17 +3,35 @@ line-length=88
 
 [tool.coverage.run]
 branch=true
-source=['app']
+source=["app"]
 
 [tool.coverage.html]
-directory='coverage'
+directory="coverage"
 
 [tool.coverage.xml]
-output='coverage.xml'
+output="coverage.xml"
 
 [tool.isort]
-profile='black'
+profile="black"
 line_length=88
+
+[tool.pylint.design]
+max-parents=10
+
+[tool.pylint.format]
+max-line-length=88
+
+[tool.pylint.messages_control]
+disable=[
+  "logging-fstring-interpolation",
+  "missing-class-docstring",
+  "missing-function-docstring",
+  "missing-module-docstring",
+  "no-member"
+]
+
+[tool.pylint.reports]
+output-format="text"
 
 [tool.vulture]
 ignore_decorators=["@app.exception_handler"]

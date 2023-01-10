@@ -98,6 +98,7 @@ def test_ContextFilter_filter_msg_string_not_supported(_context_vars, log_record
 
 
 def test_log_format_msg_string(log_record):
+    # pylint: disable=line-too-long
 
     actual_format = uut.log_format()
     actual_str = actual_format % {"json": orjson.dumps(log_record).decode()}
@@ -107,10 +108,12 @@ def test_log_format_msg_string(log_record):
         actual_str
         == '{"date":"2020-01-01T00:00:00+00:00","levelname":"INFO","pathname":"app.py","funcName":"calculate","lineno":"42","msg":"test message","request_ip":"127.0.0.1","request_id":"3dab0896-6d4d-4358-a999-cf0c47776156","thread_name":"threadName - 12345","process":"1234","log_version":"1.0.0"}'
     )
-    assert type(actual_dict) == dict
+    assert isinstance(actual_dict, dict)
 
 
 def test_log_format_msg_json(log_record):
+    # pylint: disable=line-too-long
+
     log_record["msg"] = {"message": "test"}
 
     actual_format = uut.log_format()
@@ -121,7 +124,7 @@ def test_log_format_msg_json(log_record):
         actual_str
         == '{"date":"2020-01-01T00:00:00+00:00","levelname":"INFO","pathname":"app.py","funcName":"calculate","lineno":"42","msg":{"message":"test"},"request_ip":"127.0.0.1","request_id":"3dab0896-6d4d-4358-a999-cf0c47776156","thread_name":"threadName - 12345","process":"1234","log_version":"1.0.0"}'
     )
-    assert type(actual_dict) == dict
+    assert isinstance(actual_dict, dict)
 
 
 def test_get_logger_not_setup():

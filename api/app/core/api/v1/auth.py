@@ -29,7 +29,7 @@ async def logout_auth_token(auth_token: AuthToken):
     )
 
     return ServerResponse(
-        message=f"access_token revoked: {access_revoked}, refresh_token revoked: {refresh_revoked}"
+        message=f"access_token revoked: {access_revoked}, refresh_token revoked: {refresh_revoked}"  # pylint: disable=line-too-long
     )
 
 

@@ -24,20 +24,14 @@ from tests.util import (
     Mock(now=Mock(return_value=datetime(2020, 1, 3, 0, 0))),
 )
 async def test_login_for_auth_token(
-    client, _setup_db_user_db, _setup_cache, access_token, refresh_token
+    client, _setup_db_user_db, _setup_cache, auth_token_dict
 ):
     credential = {
         "username": "tester",
         "password": "password",
     }
 
-    expected = {
-        "token_type": "Bearer",
-        "access_token": access_token,
-        "access_token_expires_at": datetime(2020, 1, 1, 1, 0, tzinfo=timezone.utc),
-        "refresh_token": refresh_token,
-        "refresh_token_expires_at": datetime(2020, 1, 1, 3, 0, tzinfo=timezone.utc),
-    }
+    expected = auth_token_dict
     expected_json = orjson.dumps(expected).decode()
     expected_json_dict = orjson.loads(expected_json)
 

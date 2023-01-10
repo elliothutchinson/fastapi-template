@@ -143,7 +143,7 @@ async def test_validate_token_valid(_setup_cache, user, access_token, access_tok
 async def test_validate_token_invalid_expired(access_token):
 
     with pytest.raises(
-        InvalidTokenException, match=f"Invalid token with expected claim 'ACCESS_TOKEN'"
+        InvalidTokenException, match="Invalid token with expected claim 'ACCESS_TOKEN'"
     ):
         await uut.validate_token(claim="ACCESS_TOKEN", token=access_token)
 
@@ -153,7 +153,7 @@ async def test_validate_token_invalid_wrong_claim(access_token):
 
     with pytest.raises(
         InvalidTokenException,
-        match=f"Token claim 'ACCESS_TOKEN' didn't match expected claim 'WRONG_CLAIM'",
+        match="Token claim 'ACCESS_TOKEN' didn't match expected claim 'WRONG_CLAIM'",
     ):
         await uut.validate_token(claim="WRONG_CLAIM", token=access_token)
 

@@ -57,7 +57,7 @@ async def test_handler_factory():
         Mock(), uut.ResourceNotFoundException("test exception")
     )
 
-    assert type(actual_response) == JSONResponse
+    assert isinstance(actual_response, JSONResponse)
 
 
 def test_register_exceptions():

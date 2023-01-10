@@ -15,8 +15,6 @@
 
 * ui app
 * perf tests
-* pylint
-* sonarqube
 * jenkins
 * psycopg/jsonb, sqlmodel, sqlalchemy, alembic
 
@@ -149,7 +147,10 @@ mutmut html
 flake8 app
 flake8 tests
 
-pylint app
+pylint app --rcfile pyproject.toml
+pylint tests --rcfile pyproject.test.toml
+
+pyreverse -o png -p Pyreverse app
 ```
 
 ### Format the code

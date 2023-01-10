@@ -156,7 +156,7 @@ def test_fetch_todos_filter(
     expected = []
 
     actual = client.get(
-        "/api/v1/todo/task?incomplete_only=true&todo_list_id=845aa33c-e1fd-4785-9fd9-4d23dd04cedf",
+        "/api/v1/todo/task?incomplete_only=true&todo_list_id=845aa33c-e1fd-4785-9fd9-4d23dd04cedf",  # pylint: disable=line-too-long
         headers=auth_headers,
     )
     actual_json = actual.json()

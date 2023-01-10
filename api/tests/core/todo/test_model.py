@@ -144,15 +144,8 @@ def test_TodoUpdate():
     assert actual.dict() == expected
 
 
-def test_TodoDb_optional_fields():
-    todo_dict = {
-        "todo_id": UUID("bff1beef-79a6-45c4-984b-0af9f6d64675"),
-        "todo_list_id": UUID("7eb80ffa-b954-4c57-8fdf-5bc66fdc31de"),
-        "description": "wash dogs",
-        "completed": False,
-        "username": "tester",
-        "date_created": datetime(2020, 1, 1, 0, 0),
-    }
+def test_TodoDb_optional_fields(todo_dict):
+    todo_dict.pop("date_modified")
 
     expected = todo_dict
     expected["id"] = None
@@ -163,16 +156,8 @@ def test_TodoDb_optional_fields():
     assert actual.dict() == expected
 
 
-def test_TodoDb():
-    todo_dict = {
-        "todo_id": UUID("bff1beef-79a6-45c4-984b-0af9f6d64675"),
-        "todo_list_id": UUID("7eb80ffa-b954-4c57-8fdf-5bc66fdc31de"),
-        "description": "wash dogs",
-        "completed": False,
-        "username": "tester",
-        "date_created": datetime(2020, 1, 1, 0, 0),
-        "date_modified": datetime(2020, 1, 1, 0, 0),
-    }
+def test_TodoDb(todo_dict):
+    todo_dict["date_modified"] = datetime(2020, 1, 1, 0, 0)
 
     expected = todo_dict
     expected["id"] = None

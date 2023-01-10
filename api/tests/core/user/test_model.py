@@ -30,7 +30,7 @@ def test_min_length_password_valid():
 def test_min_length_password_invalid():
     password = SecretStr("pas")
 
-    with pytest.raises(ValueError, match=f"password needs to be at least 4 characters"):
+    with pytest.raises(ValueError, match="password needs to be at least 4 characters"):
         uut.min_length_password(None, password)
 
 
@@ -47,7 +47,7 @@ def test_matching_password_invalid_missing_password_match():
     password = SecretStr("password")
     values = {}
 
-    with pytest.raises(ValueError, match=f"passwords don't match"):
+    with pytest.raises(ValueError, match="passwords don't match"):
         uut.matching_password(None, password, values)
 
 
@@ -55,7 +55,7 @@ def test_matching_password_invalid_password_match_none():
     password = SecretStr("password")
     values = {"password_match": None}
 
-    with pytest.raises(ValueError, match=f"passwords don't match"):
+    with pytest.raises(ValueError, match="passwords don't match"):
         uut.matching_password(None, password, values)
 
 
@@ -63,7 +63,7 @@ def test_matching_password_invalid_different_password_match():
     password = SecretStr("password")
     values = {"password_match": SecretStr("different_password")}
 
-    with pytest.raises(ValueError, match=f"passwords don't match"):
+    with pytest.raises(ValueError, match="passwords don't match"):
         uut.matching_password(None, password, values)
 
 

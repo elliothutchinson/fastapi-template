@@ -18,14 +18,14 @@ def client():
 def test_app_setup():
     actual = uut.app_setup()
 
-    assert type(actual) == FastAPI
+    assert isinstance(actual, FastAPI)
 
 
 @patch("app.main.init_db", AsyncMock(return_value=True))
 async def test_app_init():
     actual = await uut.app_init()
 
-    assert actual == True
+    assert actual is True
 
 
 def test_openapi_api_docs_enabled(_config_api_docs_enabled, client):

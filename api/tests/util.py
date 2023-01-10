@@ -6,7 +6,10 @@ def convert_to_env_vars(data: dict) -> dict:
     return {key.upper(): str(data[key]) for key in data}
 
 
-def create_config_dict(override: dict = {}) -> dict:
+def create_config_dict(override: dict = None) -> dict:
+    if not override:
+        override = {}
+
     data = {
         "project_name": "FastAPI-POC",
         "api_docs_enabled": False,
@@ -33,6 +36,7 @@ def password_hash_str():
 
 
 def user_db_dict():
+    # pylint: disable=duplicate-code
 
     return {
         "username": "tester",

@@ -54,18 +54,12 @@ def test_AuthToken_optional_fields(access_token, refresh_token):
     assert actual.dict() == expected
 
 
-def test_AuthToken(access_token, refresh_token):
-    auth_token_dict = {
-        "token_type": "Bearer",
-        "access_token": access_token,
-        "access_token_expires_at": datetime(2020, 1, 1, 1, 0, tzinfo=timezone.utc),
-        "refresh_token": refresh_token,
-        "refresh_token_expires_at": datetime(2020, 1, 1, 3, 0, tzinfo=timezone.utc),
-    }
+def test_AuthToken(auth_token_dict):
+    expected = auth_token_dict
 
     actual = uut.AuthToken(**auth_token_dict)
 
-    assert actual.dict() == auth_token_dict
+    assert actual.dict() == expected
 
 
 @patch(
@@ -99,8 +93,8 @@ async def test_user_logout(_setup_db, _setup_cache, access_token, refresh_token)
         access_token=access_token, refresh_token=refresh_token
     )
 
-    assert actual_access_token_logout == True
-    assert actual_refresh_token_logout == True
+    assert actual_access_token_logout is True
+    assert actual_refresh_token_logout is True
 
 
 @patch(
@@ -112,9 +106,8 @@ async def test_user_logout(_setup_db, _setup_cache, access_token, refresh_token)
     Mock(return_value=datetime(2020, 1, 1, 0, 30, tzinfo=timezone.utc)),
 )
 @patch("jwt.api_jwt._jwt_global_obj._validate_exp", Mock(return_value=None))
-async def test_refresh_access_token(
-    _setup_db_user_db, _setup_cache, access_token, refresh_token
-):
+async def test_refresh_access_token(_setup_db_user_db, _setup_cache, refresh_token):
+    # pylint: disable=line-too-long
     expected = uut.AuthToken(
         access_token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl9pZCI6ImZiMjhiNWM0LTUyYzAtNDlkOC05Y2ZhLWI4YjE1MDM5MTA1NyIsImNsYWltIjoiQUNDRVNTX1RPS0VOIiwiZXhwIjoxNTc3ODQyMjAwLCJzdWIiOiJ0ZXN0ZXIiLCJkYXRhIjp7InVzZXJuYW1lIjoidGVzdGVyIiwiZmlyc3RfbmFtZSI6IkpvZSIsImxhc3RfbmFtZSI6IlRlc3RlciIsImVtYWlsIjoidGVzdGVyQGV4YW1wbGUuY29tIiwidmVyaWZpZWRfZW1haWwiOiJ0ZXN0ZXJAZXhhbXBsZS5jb20iLCJyb2xlcyI6WyJVU0VSIl0sImRpc2FibGVkIjpmYWxzZSwiZGF0ZV9jcmVhdGVkIjoiMjAyMC0wMS0wMSAwMDowMDowMCIsImRhdGVfbW9kaWZpZWQiOiIyMDIwLTAxLTAyIDAwOjAwOjAwIiwibGFzdF9sb2dpbiI6IjIwMjAtMDEtMDMgMDA6MDA6MDAifX0.x5l2Qw4uTzaeCsNsPrPVyNeS54eBvNanbx7Xf6ih5rc",
         access_token_expires_at=datetime(2020, 1, 1, 1, 30, tzinfo=timezone.utc),
@@ -144,9 +137,9 @@ async def test_get_api_user_invalid(_setup_db, _setup_cache):
 
     with pytest.raises(
         InvalidCredentialException,
-        match=f"Invalid credentials provided for username 'tester'",
+        match="Invalid credentials provided for username 'tester'",
     ):
-        await uut.get_api_user(username="tester", password=SecretStr("password")),
+        await uut.get_api_user(username="tester", password=SecretStr("password"))
 
 
 async def test_get_api_user_disabled(mocker, user_db):
@@ -156,8 +149,8 @@ async def test_get_api_user_disabled(mocker, user_db):
         Mock(fetch_user=AsyncMock(return_value=user_db)),
     )
 
-    with pytest.raises(UserDisabedException, match=f"User 'tester' has been disabled"):
-        await uut.get_api_user(username="tester", password=SecretStr("password")),
+    with pytest.raises(UserDisabedException, match="User 'tester' has been disabled"):
+        await uut.get_api_user(username="tester", password=SecretStr("password"))
 
 
 async def test_authenticate_user_valid(_setup_db_user_db, _setup_cache, user):
