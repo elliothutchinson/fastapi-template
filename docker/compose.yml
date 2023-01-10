@@ -17,10 +17,8 @@ services:
       - ./env/api.env
       - ./env/db.env
     depends_on:
-      db:
-        condition: service_started
-      cache:
-        condition: service_started
+      - db
+      - cache
 
   db:
     image: mongo
@@ -31,16 +29,6 @@ services:
       - ../_data/db:/data/db
     env_file:
       - ./env/db.env
-
-  db-admin:
-    image: mongo-express
-    restart: always
-    ports:
-      - "8001:8081"
-    env_file:
-      - ./env/db.env
-    depends_on:
-      - db
 
   cache:
     image: redis
@@ -58,7 +46,21 @@ services:
     env_file:
       - ./env/db.env
 
+  db-admin:
+    profiles:
+      - debug
+    image: mongo-express
+    restart: always
+    ports:
+      - "8001:8081"
+    env_file:
+      - ./env/db.env
+    depends_on:
+      - db
+
   cache-admin:
+    profiles:
+      - debug
     image: rediscommander/redis-commander:latest
     restart: always
     ports:
@@ -69,6 +71,8 @@ services:
       - cache
 
   sonar:
+    profiles:
+      - sonar
     image: sonarqube:community
     ports:
       - "8003:9000"
@@ -79,28 +83,25 @@ services:
     env_file:
       - ./env/sonar.env
     depends_on:
-      sonar-db:
-        condition: service_started
-    profiles:
-      - sonar
+      - sonar-db
 
   sonar-db:
+    profiles:
+      - sonar
     image: postgres
     volumes:
       - ../_data/sonar-db:/var/lib/postgresql/data
     env_file:
       - ./env/sonar.env
-    profiles:
-      - sonar
 
   sonar-scanner:
+    profiles:
+      - sonar-scanner
     image: sonarsource/sonar-scanner-cli
     volumes:
       - ../api:/usr/src
     depends_on:
       - sonar
-    profiles:
-      - sonar-scanner
 
 volumes:
   sonarqube_data:
