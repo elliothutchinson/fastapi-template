@@ -11,11 +11,11 @@ logger = get_logger(__name__)
 
 
 def app_setup() -> FastAPI:
-    app = FastAPI(middleware=middlewares, **app_settings())
-    app.include_router(router)
-    register_exceptions(app)
+    fastapi_app = FastAPI(middleware=middlewares, **app_settings())
+    fastapi_app.include_router(router)
+    register_exceptions(fastapi_app)
 
-    return app
+    return fastapi_app
 
 
 app = app_setup()

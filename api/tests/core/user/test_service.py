@@ -52,6 +52,29 @@ async def test_create_user(_setup_db, user_create, user_db):
     assert actual_dict == expected
 
 
+@patch(
+    "app.core.user.service.datetime",
+    Mock(now=Mock(return_value=datetime(2020, 1, 1, 0, 0))),
+)
+@patch(
+    "app.core.security.crypt.context", Mock(hash=Mock(return_value=password_hash_str()))
+)
+async def test_create_user_no_roles(_setup_db, user_create, user_db):
+    expected = user_db.dict()
+    expected["roles"] = []
+    expected["verified_email"] = None
+    expected["date_modified"] = None
+    expected["last_login"] = None
+    expected.pop("id")
+
+    actual = await uut.create_user(user_create=user_create)
+    actual_dict = actual.dict()
+    actual_id = actual_dict.pop("id")
+
+    assert actual_id is not None
+    assert actual_dict == expected
+
+
 async def test_create_user_username_already_exists(_setup_db_user_db, user_create):
     user_create.email = "tester_2@example.com"
 

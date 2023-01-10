@@ -15,7 +15,7 @@ ctx_request_id = ContextVar("request_id", default="n/a")
 ctx_request_ip = ContextVar("request_ip", default="n/a")
 
 
-class RequestIdMiddleware(BaseHTTPMiddleware):
+class RequestIdMiddleware(BaseHTTPMiddleware):  # pylint: disable=too-few-public-methods
     async def dispatch(self, request, call_next):
         request_id = request.headers.get("request_id", str(uuid4()))
         ctx_request_id.set(request_id)

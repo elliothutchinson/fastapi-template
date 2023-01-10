@@ -44,6 +44,20 @@ def _some_class_env(some_class_dict):
     os.environ.update(original_env)
 
 
+@pytest.fixture
+def datetime_dict():
+
+    return {
+        "key_1": datetime(2020, 1, 1, 0, 0),
+        "key_2": datetime(2020, 1, 2, 0, 0),
+        "more_keys": {
+            "key_3": datetime(2020, 1, 3, 0, 0),
+            "key_4": datetime(2020, 1, 4, 0, 0),
+            "key_5": 42,
+        },
+    }
+
+
 def test_PydanticModel():
     actual = uut.PydanticModel
 
@@ -82,7 +96,7 @@ def test_convert_timestamp_to_ttl_expired_timestamp():
     assert actual == 1
 
 
-def test_convert_datetime_to_str():
+def test_convert_datetime_to_str(datetime_dict):
     expected = {
         "key_1": "2020-01-01 00:00:00",
         "key_2": datetime(2020, 1, 2, 0, 0),
@@ -93,16 +107,25 @@ def test_convert_datetime_to_str():
         },
     }
 
-    actual = {
-        "key_1": datetime(2020, 1, 1, 0, 0),
-        "key_2": datetime(2020, 1, 2, 0, 0),
+    actual = datetime_dict
+    uut.convert_datetime_to_str(actual, skip=["key_2", "key_3"])
+
+    assert actual == expected
+
+
+def test_convert_datetime_to_str_no_skip(datetime_dict):
+    expected = {
+        "key_1": "2020-01-01 00:00:00",
+        "key_2": "2020-01-02 00:00:00",
         "more_keys": {
-            "key_3": datetime(2020, 1, 3, 0, 0),
-            "key_4": datetime(2020, 1, 4, 0, 0),
+            "key_3": "2020-01-03 00:00:00",
+            "key_4": "2020-01-04 00:00:00",
             "key_5": 42,
         },
     }
-    uut.convert_datetime_to_str(actual, ["key_2", "key_3"])
+
+    actual = datetime_dict
+    uut.convert_datetime_to_str(actual)
 
     assert actual == expected
 

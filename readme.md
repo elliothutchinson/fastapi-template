@@ -128,10 +128,10 @@ docker compose -p fastapi-beanie-poc -f docker/compose.yml up
 <from api dir>
 pytest
 
-pytest --cov=app tests --cov-branch --cov-report xml:coverage.xml
-update coverage.xml <source>/usr/src/app</source>
+pytest --cov-config=pyproject.toml --cov --cov-report html
+pytest --cov-config=pyproject.toml --cov --cov-report xml
 
-pytest --cov=app tests --cov-branch --cov-report html:coverage
+update coverage.xml <source>/usr/src/app</source>
 
 docker compose -p fastapi-beanie-poc -f docker/compose.yml --profile sonar up
 docker compose -p fastapi-beanie-poc -f docker/compose.yml --profile sonar-scanner up
@@ -148,6 +148,8 @@ mutmut html
 <from api dir>
 flake8 app
 flake8 tests
+
+pylint app
 ```
 
 ### Format the code

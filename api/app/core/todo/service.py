@@ -28,11 +28,11 @@ async def create_todo_list(
 
     try:
         await todo_list_db.insert()
-    except DuplicateKeyError as e:
-        logger.error(e)
+    except DuplicateKeyError as dke:
+        logger.error(dke)
         raise DataConflictException(
             f"Todo list resource already exists with id '{todo_list_create.todo_list_id}'"
-        )
+        ) from dke
 
     return todo_list_db
 
@@ -124,11 +124,11 @@ async def create_todo(username: str, todo_create: TodoCreate) -> TodoDb:
 
     try:
         await todo_db.insert()
-    except DuplicateKeyError as e:
-        logger.error(e)
+    except DuplicateKeyError as dke:
+        logger.error(dke)
         raise DataConflictException(
             f"Todo resource already exists with id '{todo_create.todo_id}'"
-        )
+        ) from dke
 
     return todo_db
 
@@ -142,7 +142,7 @@ async def fetch_todos(
         todo_dbs = (
             await TodoDb.find(TodoDb.todo_list_id == todo_list_id)
             .find(TodoDb.username == username)
-            .find(TodoDb.completed == False)
+            .find(TodoDb.completed == False)  # pylint: disable=singleton-comparison
             .to_list()
         )
     elif todo_list_id:
@@ -154,7 +154,7 @@ async def fetch_todos(
     elif incomplete_only:
         todo_dbs = (
             await TodoDb.find(TodoDb.username == username)
-            .find(TodoDb.completed == False)
+            .find(TodoDb.completed == False)  # pylint: disable=singleton-comparison
             .to_list()
         )
     else:

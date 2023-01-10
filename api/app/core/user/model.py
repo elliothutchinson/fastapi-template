@@ -29,7 +29,7 @@ def matching_password(cls, value, values) -> SecretStr:
         or not values["password_match"]
         or value.get_secret_value() != values["password_match"].get_secret_value()
     ):
-        raise ValueError(f"passwords don't match")
+        raise ValueError("passwords don't match")
 
     return value
 

@@ -41,7 +41,10 @@ async def fetch_user(username: str) -> UserDb:
     return user_db
 
 
-async def create_user(user_create: UserCreate, roles: List[str] = []) -> UserDb:
+async def create_user(user_create: UserCreate, roles: List[str] = None) -> UserDb:
+    if roles is None:
+        roles = []
+
     password_hash = crypt.hash_password(user_create.password)
     user_db = UserDb(
         **user_create.dict(),
@@ -52,9 +55,9 @@ async def create_user(user_create: UserCreate, roles: List[str] = []) -> UserDb:
 
     try:
         await user_db.insert()
-    except DuplicateKeyError as e:
-        logger.error(e)
-        raise DataConflictException("Email or username already exists")
+    except DuplicateKeyError as dke:
+        logger.error(dke)
+        raise DataConflictException("Email or username already exists") from dke
 
     return user_db
 

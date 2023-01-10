@@ -25,7 +25,7 @@ class ContextFilter(logging.Filter):
     def filter(self, record):
         try:
             msg = str(record.msg)
-        except Exception:
+        except Exception:  # pylint: disable=broad-except
             msg = "Incompatible log message"
 
         json = {

@@ -19,16 +19,20 @@ def convert_timestamp_to_ttl(timestamp: int) -> int:
     return max(1, ttl)
 
 
-def convert_datetime_to_str(data: dict, skip: List[str] = []):
+def convert_datetime_to_str(data: dict, skip: List[str] = None):
     """
     mutates provided data dict, stringifying any datetime objects not provided in skip list
     """
+    if skip is None:
+        skip = []
+
     for key in data:
         if key in skip:
             continue
-        elif type(data[key]) is dict:
+
+        if isinstance(data[key], dict):
             convert_datetime_to_str(data=data[key], skip=skip)
-        elif type(data[key]) is datetime:
+        elif isinstance(data[key], datetime):
             data[key] = str(data[key])
 
 
@@ -42,7 +46,8 @@ def populate_from_env(doc_model: Type[PydanticModel]) -> dict:
 
         if value is None:
             continue
-        elif value_type is bool:
+
+        if value_type is bool:
             env[key] = value.lower() == "true"
         elif value_type is SecretStr:
             env[key] = value

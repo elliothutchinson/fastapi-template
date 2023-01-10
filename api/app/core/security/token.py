@@ -75,9 +75,11 @@ async def validate_token(claim: str, token: str) -> dict:
                 f"Token claim '{decoded_claim}' didn't match expected claim '{claim}'"
             )
 
-    except InvalidTokenError as e:
-        logger.error(e)
-        raise InvalidTokenException(f"Invalid token with expected claim '{claim}'")
+    except InvalidTokenError as ite:
+        logger.error(ite)
+        raise InvalidTokenException(
+            f"Invalid token with expected claim '{claim}'"
+        ) from ite
 
     token_id = jwt_data["token_id"]
 
