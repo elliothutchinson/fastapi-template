@@ -39,12 +39,12 @@ class User(BaseModel):
     first_name: str
     last_name: str
     email: EmailStr
-    verified_email: EmailStr = None
+    verified_email: EmailStr | None = None
     roles: List[str]
     disabled: bool
     date_created: datetime
-    date_modified: datetime = None
-    last_login: datetime = None
+    date_modified: datetime | None = None
+    last_login: datetime | None = None
 
 
 class UserCreate(BaseModel):
@@ -82,10 +82,10 @@ class UserDb(Document):
     first_name: str
     last_name: str
     email: Indexed(EmailStr, unique=True)
-    verified_email: EmailStr = None
+    verified_email: EmailStr | None = None
     roles: List[str] = []
     disabled: bool = False
     date_created: datetime
-    date_modified: datetime = None
-    last_login: datetime = None
+    date_modified: datetime | None = None
+    last_login: datetime | None = None
     password_hash: str

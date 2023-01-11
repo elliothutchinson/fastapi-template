@@ -148,7 +148,7 @@ flake8 app
 flake8 tests
 
 pylint app --rcfile pyproject.toml
-pylint tests --rcfile pyproject.test.toml
+pylint tests --rcfile pyproject.toml --disable=redefined-outer-name
 
 pyreverse -o png -p Pyreverse app
 ```

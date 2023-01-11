@@ -25,7 +25,7 @@ class TodoListDb(Document):
     list_name: str
     username: str
     date_created: datetime
-    date_modified: datetime = None
+    date_modified: datetime | None = None
 
 
 class Todo(BaseModel):
@@ -55,4 +55,4 @@ class TodoDb(Document):
     completed: bool
     username: str
     date_created: datetime
-    date_modified: datetime = None
+    date_modified: datetime | None = None

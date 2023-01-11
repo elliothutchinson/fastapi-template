@@ -16,4 +16,3 @@ sonar.tests=./tests
 
 sonar.python.version=3.11
 sonar.python.coverage.reportPaths=coverage.xml
-

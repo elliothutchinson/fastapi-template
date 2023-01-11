@@ -15,6 +15,9 @@ output="coverage.xml"
 profile="black"
 line_length=88
 
+[tool.pylint.basic]
+good-names-rgxs="^test_*"
+
 [tool.pylint.design]
 max-parents=10
 
@@ -32,6 +35,10 @@ disable=[
 
 [tool.pylint.reports]
 output-format="text"
+
+[tool.pytest.ini_options]
+asyncio_mode="auto"
+#log_cli=true
 
 [tool.vulture]
 ignore_decorators=["@app.exception_handler"]

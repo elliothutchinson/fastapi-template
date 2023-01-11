@@ -1,6 +1,8 @@
 .DS_Store
 *.pyc
 *.env
+__pycache__/
+.pytest_cache/
 .mutmut-cache
 _data/
 coverage/

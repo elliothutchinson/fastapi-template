@@ -29,7 +29,7 @@ class RevokedTokenDb(Document):
     claim: str
     exp: int
     sub: str
-    data: dict = None
+    data: dict | None = None
     revoke_reason: str
 
 

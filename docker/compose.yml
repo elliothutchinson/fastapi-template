@@ -26,7 +26,7 @@ services:
     ports:
       - "27017:27017"
     volumes:
-      - ../_data/db:/data/db
+      - db_data:/data/db
     env_file:
       - ./env/db.env
 
@@ -42,7 +42,7 @@ services:
     ports:
       - "6379:6379"
     volumes:
-      - ../_data/cache:/data
+      - cache_data:/data
     env_file:
       - ./env/db.env
 
@@ -62,6 +62,7 @@ services:
     profiles:
       - debug
     image: rediscommander/redis-commander:latest
+    platform: linux/amd64
     restart: always
     ports:
       - "8002:8081"
@@ -73,13 +74,16 @@ services:
   sonar:
     profiles:
       - sonar
-    image: sonarqube:community
+    # image: sonarqube:community
+    build:
+      context: .
+      dockerfile: ./Dockerfile.sonar-arm64
     ports:
       - "8003:9000"
     volumes:
-      - sonarqube_data:/opt/sonarqube/data
-      - sonarqube_extensions:/opt/sonarqube/extensions
-      - sonarqube_logs:/opt/sonarqube/logs
+      - sonar_data:/opt/sonarqube/data
+      - sonar_extensions:/opt/sonarqube/extensions
+      - sonar_logs:/opt/sonarqube/logs
     env_file:
       - ./env/sonar.env
     depends_on:
@@ -90,20 +94,28 @@ services:
       - sonar
     image: postgres
     volumes:
-      - ../_data/sonar-db:/var/lib/postgresql/data
+      - sonar-db_data:/var/lib/postgresql/data
     env_file:
       - ./env/sonar.env
 
   sonar-scanner:
     profiles:
       - sonar-scanner
-    image: sonarsource/sonar-scanner-cli
+    # image: sonarsource/sonar-scanner-cli
+    build:
+      context: .
+      dockerfile: ./Dockerfile.sonar-scanner-arm64
+    env_file:
+      - ./env/sonar-scanner.env
     volumes:
       - ../api:/usr/src
     depends_on:
       - sonar
 
 volumes:
-  sonarqube_data:
-  sonarqube_extensions:
-  sonarqube_logs:
+  db_data:
+  cache_data:
+  sonar_data:
+  sonar_extensions:
+  sonar_logs:
+  sonar-db_data:
