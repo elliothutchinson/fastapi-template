@@ -1,4 +1,5 @@
 factory_boy
+freezegun
 httpx
 mongomock-motor
 mutmut

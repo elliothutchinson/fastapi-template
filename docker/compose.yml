@@ -112,6 +112,22 @@ services:
     depends_on:
       - sonar
 
+  jenkins:
+    profiles:
+      - ci
+    image: jenkins/jenkins:lts
+    ports:
+      - "8004:8080"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+
+  jenkins-ssh:
+    profiles:
+      - ci
+    image: jenkins/ssh-agent
+    env_file:
+      - ./env/jenkins.env
+
 volumes:
   db_data:
   cache_data:
@@ -119,3 +135,4 @@ volumes:
   sonar_extensions:
   sonar_logs:
   sonar-db_data:
+  jenkins_home:

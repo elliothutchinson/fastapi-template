@@ -12,23 +12,21 @@ logger = get_logger(__name__)
 config = get_config()
 
 
-def connection():
-
+def _connection():
     return aioredis.from_url(config.cache_url, decode_responses=True)
 
 
-def build_cache_key(prefix: str, key: str) -> str:
-
+def _build_cache_key(prefix: str, key: str) -> str:
     return f"{prefix}-{key}"
 
 
-async def fetch_entity(
+async def fetch(
     prefix: str, key: str, doc_model: Type[PydanticModel]
 ) -> Optional[PydanticModel]:
     entity = None
 
-    cache_key = build_cache_key(prefix=prefix, key=key)
-    redis = connection()
+    cache_key = _build_cache_key(prefix=prefix, key=key)
+    redis = _connection()
     cached_json = await redis.get(cache_key)
 
     if cached_json:
@@ -38,18 +36,16 @@ async def fetch_entity(
     return entity
 
 
-async def cache_entity(
-    prefix: str, key: str, doc: PydanticModel, ttl: int
-) -> Optional[bool]:
-    cache_key = build_cache_key(prefix=prefix, key=key)
-    redis = connection()
+async def put(prefix: str, key: str, doc: PydanticModel, ttl: int) -> Optional[bool]:
+    cache_key = _build_cache_key(prefix=prefix, key=key)
+    redis = _connection()
 
     return await redis.set(cache_key, doc.json(), ex=ttl)
 
 
-async def delete_entity(prefix: str, key: str) -> bool:
-    cache_key = build_cache_key(prefix=prefix, key=key)
-    redis = connection()
+async def delete(prefix: str, key: str) -> bool:
+    cache_key = _build_cache_key(prefix=prefix, key=key)
+    redis = _connection()
 
     result = await redis.delete(cache_key)
 

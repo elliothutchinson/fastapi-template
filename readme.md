@@ -129,8 +129,6 @@ pytest
 pytest --cov-config=pyproject.toml --cov --cov-report html
 pytest --cov-config=pyproject.toml --cov --cov-report xml
 
-update coverage.xml <source>/usr/src/app</source>
-
 docker compose -p fastapi-beanie-poc -f docker/compose.yml --profile sonar up
 docker compose -p fastapi-beanie-poc -f docker/compose.yml --profile sonar-scanner up
 

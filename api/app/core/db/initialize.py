@@ -4,14 +4,12 @@ from beanie import Document, init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from app.core.config import get_config
-from app.core.security.token import RevokedTokenDb
-from app.core.todo.model import TodoDb, TodoListDb
-from app.core.user.model import UserDb
+from app.core.todo.repo import TodoDb, TodoListDb
+from app.core.user.repo import UserDb
 
 
 def doc_models() -> List[Document]:
-
-    return [UserDb, RevokedTokenDb, TodoListDb, TodoDb]
+    return [UserDb, TodoListDb, TodoDb]
 
 
 async def init_db(app) -> bool:

@@ -1,8 +1,16 @@
+[tool.autoflake]
+exclude=["__init__.py"]
+in-place=true
+recursive=true
+remove-all-unused-imports=true
+remove-unused-variables=true
+
 [tool.black]
 line-length=88
 
 [tool.coverage.run]
 branch=true
+relative_files=true
 source=["app"]
 
 [tool.coverage.html]
@@ -12,8 +20,9 @@ directory="coverage"
 output="coverage.xml"
 
 [tool.isort]
-profile="black"
+combine_as_imports=true
 line_length=88
+profile="black"
 
 [tool.pylint.basic]
 good-names-rgxs="^test_*"
@@ -30,7 +39,8 @@ disable=[
   "missing-class-docstring",
   "missing-function-docstring",
   "missing-module-docstring",
-  "no-member"
+  "no-member",
+  "too-few-public-methods"
 ]
 
 [tool.pylint.reports]

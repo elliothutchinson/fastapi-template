@@ -1,7 +1,6 @@
 from datetime import datetime
 from typing import List, Optional
 
-from beanie import Document, Indexed
 from pydantic import BaseModel, EmailStr, SecretStr, constr, validator
 
 from app.core.config import get_config
@@ -34,7 +33,7 @@ def matching_password(cls, value, values) -> SecretStr:
     return value
 
 
-class User(BaseModel):
+class UserPublic(BaseModel):
     username: str
     first_name: str
     last_name: str
@@ -45,6 +44,10 @@ class User(BaseModel):
     date_created: datetime
     date_modified: datetime | None = None
     last_login: datetime | None = None
+
+
+class UserPrivate(UserPublic):
+    password_hash: str
 
 
 class UserCreate(BaseModel):
@@ -75,17 +78,3 @@ class UserUpdatePrivate(BaseModel):
     roles: Optional[List[str]]
     disabled: Optional[bool]
     last_login: Optional[datetime]
-
-
-class UserDb(Document):
-    username: Indexed(str, unique=True)
-    first_name: str
-    last_name: str
-    email: Indexed(EmailStr, unique=True)
-    verified_email: EmailStr | None = None
-    roles: List[str] = []
-    disabled: bool = False
-    date_created: datetime
-    date_modified: datetime | None = None
-    last_login: datetime | None = None
-    password_hash: str

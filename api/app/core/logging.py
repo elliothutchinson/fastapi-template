@@ -1,6 +1,6 @@
 import logging
 from contextvars import copy_context
-from datetime import datetime
+from datetime import datetime, timezone
 
 import orjson
 
@@ -29,7 +29,7 @@ class ContextFilter(logging.Filter):
             msg = "Incompatible log message"
 
         json = {
-            "date": datetime.utcnow().isoformat(),
+            "date": datetime.now(timezone.utc).isoformat(),
             "levelname": record.levelname,
             "pathname": record.pathname,
             "funcName": record.funcName,
@@ -46,8 +46,7 @@ class ContextFilter(logging.Filter):
         return True
 
 
-def log_format() -> str:
-
+def _log_format() -> str:
     return "%(json)s"
 
 
@@ -60,7 +59,7 @@ def get_logger(name: str) -> logging.Logger:
 
     if not logger.handlers:
         handler = logging.StreamHandler()
-        formatter = logging.Formatter(log_format())
+        formatter = logging.Formatter(_log_format())
         handler.setFormatter(formatter)
         logger.addHandler(handler)
         logger.propagate = False

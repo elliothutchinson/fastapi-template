@@ -13,7 +13,7 @@ from app.core.todo.model import (
     TodoListUpdate,
     TodoUpdate,
 )
-from app.core.user.model import User
+from app.core.user.model import UserPublic
 
 router = APIRouter()
 
@@ -21,7 +21,7 @@ router = APIRouter()
 @router.post("/list", response_model=TodoList)
 async def create_todo_list(
     todo_list_create: TodoListCreate,
-    current_user: User = Depends(get_user_from_token),
+    current_user: UserPublic = Depends(get_user_from_token),
 ):
     todo_list = await todo_service.create_todo_list(
         username=current_user.username, todo_list_create=todo_list_create
@@ -32,7 +32,7 @@ async def create_todo_list(
 
 @router.get("/list", response_model=List[TodoList])
 async def fetch_todo_lists(
-    current_user: User = Depends(get_user_from_token),
+    current_user: UserPublic = Depends(get_user_from_token),
 ):
     todo_lists = await todo_service.fetch_todo_lists(current_user.username)
 
@@ -43,7 +43,7 @@ async def fetch_todo_lists(
 async def update_todo_list(
     todo_list_id: UUID,
     todo_list_update: TodoListUpdate,
-    current_user: User = Depends(get_user_from_token),
+    current_user: UserPublic = Depends(get_user_from_token),
 ):
     todo_list = await todo_service.update_todo_list(
         username=current_user.username,
@@ -57,7 +57,7 @@ async def update_todo_list(
 @router.delete("/list/{todo_list_id}", response_model=TodoList)
 async def delete_todo_list(
     todo_list_id: UUID,
-    current_user: User = Depends(get_user_from_token),
+    current_user: UserPublic = Depends(get_user_from_token),
 ):
     todo_list = await todo_service.delete_todo_list(
         username=current_user.username, todo_list_id=todo_list_id
@@ -69,7 +69,7 @@ async def delete_todo_list(
 @router.post("/task", response_model=Todo)
 async def create_todo(
     todo_create: TodoCreate,
-    current_user: User = Depends(get_user_from_token),
+    current_user: UserPublic = Depends(get_user_from_token),
 ):
     todo = await todo_service.create_todo(
         username=current_user.username, todo_create=todo_create
@@ -82,7 +82,7 @@ async def create_todo(
 async def fetch_todos(
     todo_list_id: UUID = None,
     incomplete_only: bool = False,
-    current_user: User = Depends(get_user_from_token),
+    current_user: UserPublic = Depends(get_user_from_token),
 ):
     todos = await todo_service.fetch_todos(
         username=current_user.username,
@@ -97,7 +97,7 @@ async def fetch_todos(
 async def update_todo(
     todo_id: UUID,
     todo_update: TodoUpdate,
-    current_user: User = Depends(get_user_from_token),
+    current_user: UserPublic = Depends(get_user_from_token),
 ):
     todo = await todo_service.update_todo(
         username=current_user.username, todo_id=todo_id, todo_update=todo_update
@@ -109,7 +109,7 @@ async def update_todo(
 @router.delete("/task/{todo_id}", response_model=Todo)
 async def delete_todo(
     todo_id: UUID,
-    current_user: User = Depends(get_user_from_token),
+    current_user: UserPublic = Depends(get_user_from_token),
 ):
     todo = await todo_service.delete_todo(
         username=current_user.username, todo_id=todo_id

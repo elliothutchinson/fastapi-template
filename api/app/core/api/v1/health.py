@@ -10,5 +10,4 @@ router = APIRouter()
 
 @router.get("/", response_model=ServerResponse)
 async def service_health():
-
     return ServerResponse(message="OK")

@@ -13,7 +13,7 @@ from app.core.exception import (
 )
 from app.core.security.token import generate_token, revoke_token, validate_token
 from app.core.user import service as user_service
-from app.core.user.model import User, UserUpdatePrivate
+from app.core.user.model import UserPublic, UserUpdatePrivate
 
 from .crypt import verify_password
 
@@ -35,23 +35,23 @@ class AuthToken(BaseModel):
 
 
 async def user_login(username: str, password: SecretStr) -> AuthToken:
-    api_user = await get_api_user(username=username, password=password)
-    user_update = await user_service.update_user_private(
+    api_user = await _get_api_user(username=username, password=password)
+    updated_user = await user_service.update_private(
         username=api_user.username,
-        user_update_private=UserUpdatePrivate(last_login=datetime.now()),
+        user_update_private=UserUpdatePrivate(last_login=datetime.now(timezone.utc)),
     )
-    user = User(**user_update.dict())
+    user_public = UserPublic(**updated_user.dict())
 
     access_token, access_token_expires_at = generate_token(
         claim=ACCESS_TOKEN,
         expire_min=config.access_token_expire_min,
-        sub=user.username,
-        data=user,
+        sub=user_public.username,
+        data=user_public,
     )
     refresh_token, refresh_token_expires_at = generate_token(
         claim=REFRESH_TOKEN,
         expire_min=config.refresh_token_expire_min,
-        sub=user.username,
+        sub=user_public.username,
         data=None,
     )
 
@@ -79,14 +79,14 @@ async def refresh_access_token(refresh_token: str) -> AuthToken:
     refresh_token_expires_at = datetime.fromtimestamp(
         token_data["exp"], tz=timezone.utc
     )
-    user_db = await user_service.fetch_user(token_data["sub"])
-    user = User(**user_db.dict())
+    user_private = await user_service.fetch(token_data["sub"])
+    user_public = UserPublic(**user_private.dict())
 
     access_token, access_token_expires_at = generate_token(
         claim=ACCESS_TOKEN,
         expire_min=config.access_token_expire_min,
-        sub=user.username,
-        data=user,
+        sub=user_public.username,
+        data=user_public,
     )
 
     return AuthToken(
@@ -97,15 +97,15 @@ async def refresh_access_token(refresh_token: str) -> AuthToken:
     )
 
 
-async def get_user_from_token(token: str = Depends(oauth2_scheme)) -> User:
+async def get_user_from_token(token: str = Depends(oauth2_scheme)) -> UserPublic:
     token_data = await validate_token(claim=ACCESS_TOKEN, token=token)
-    user = User(**token_data["data"])
+    user = UserPublic(**token_data["data"])
 
     return user
 
 
-async def get_api_user(username: str, password: SecretStr) -> User:
-    user = await authenticate_user(username=username, password=password)
+async def _get_api_user(username: str, password: SecretStr) -> UserPublic:
+    user = await _authenticate_user(username=username, password=password)
 
     if not user:
         raise InvalidCredentialException(
@@ -118,14 +118,16 @@ async def get_api_user(username: str, password: SecretStr) -> User:
     return user
 
 
-async def authenticate_user(username: str, password: SecretStr) -> Optional[User]:
-    user = None
+async def _authenticate_user(
+    username: str, password: SecretStr
+) -> Optional[UserPublic]:
+    user_public = None
 
     try:
-        user_db = await user_service.fetch_user(username)
-        if verify_password(password=password, password_hash=user_db.password_hash):
-            user = User(**user_db.dict())
+        user_private = await user_service.fetch(username)
+        if verify_password(password=password, password_hash=user_private.password_hash):
+            user_public = UserPublic(**user_private.dict())
     except ResourceNotFoundException:
         pass
 
-    return user
+    return user_public

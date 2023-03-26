@@ -1,5 +1,7 @@
 import os
-from datetime import datetime
+from datetime import datetime, timezone
+
+# look into using list[str] etc for lists instead of import
 from typing import List, Type, TypeVar, get_type_hints
 
 from pydantic import BaseModel, SecretStr
@@ -7,13 +9,8 @@ from pydantic import BaseModel, SecretStr
 PydanticModel = TypeVar("PydanticModel", bound=BaseModel)
 
 
-def utc_now() -> datetime:
-
-    return datetime.utcnow()
-
-
 def convert_timestamp_to_ttl(timestamp: int) -> int:
-    now = int(utc_now().timestamp())
+    now = int(datetime.now(timezone.utc).timestamp())
     ttl = timestamp - now
 
     return max(1, ttl)
@@ -21,7 +18,7 @@ def convert_timestamp_to_ttl(timestamp: int) -> int:
 
 def convert_datetime_to_str(data: dict, skip: List[str] = None):
     """
-    mutates provided data dict, stringifying datetime objects not provided in skip list
+    Mutates provided data dict, stringifying datetime objects not provided in skip list.
     """
     if skip is None:
         skip = []
@@ -33,7 +30,7 @@ def convert_datetime_to_str(data: dict, skip: List[str] = None):
         if isinstance(data[key], dict):
             convert_datetime_to_str(data=data[key], skip=skip)
         elif isinstance(data[key], datetime):
-            data[key] = str(data[key])
+            data[key] = data[key].isoformat(timespec="milliseconds")
 
 
 def populate_from_env(doc_model: Type[PydanticModel]) -> dict:

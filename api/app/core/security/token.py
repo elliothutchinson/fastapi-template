@@ -1,10 +1,9 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 
 import jwt
-from beanie import Document, Indexed
 from jwt.exceptions import InvalidTokenError
-from pymongo.errors import DuplicateKeyError
+from pydantic import BaseModel
 
 from app.core.config import get_config
 from app.core.db import cache
@@ -14,7 +13,6 @@ from app.core.util import (
     PydanticModel,
     convert_datetime_to_str,
     convert_timestamp_to_ttl,
-    utc_now,
 )
 
 config = get_config()
@@ -24,8 +22,8 @@ logger = get_logger(__name__)
 REVOKED_TOKEN_CACHE_PREFIX = "REVOKED_TOKEN"
 
 
-class RevokedTokenDb(Document):
-    token_id: Indexed(str, unique=True)
+class RevokedToken(BaseModel):
+    token_id: str
     claim: str
     exp: int
     sub: str
@@ -36,7 +34,7 @@ class RevokedTokenDb(Document):
 def generate_token(
     claim: str, expire_min: float, sub: str, data: PydanticModel = None
 ) -> tuple[str, datetime]:
-    date_created = utc_now()
+    date_created = datetime.now(timezone.utc)
     date_expires = date_created + timedelta(minutes=expire_min)
 
     data_dict = None
@@ -77,13 +75,11 @@ async def validate_token(claim: str, token: str) -> dict:
 
     except InvalidTokenError as ite:
         logger.error(ite)
-        raise InvalidTokenException(
-            f"Invalid token with expected claim '{claim}'"
-        ) from ite
+        raise InvalidTokenException(f"Invalid token with claim '{claim}'") from ite
 
     token_id = jwt_data["token_id"]
 
-    if await is_token_revoked(token_id):
+    if await _is_token_revoked(token_id):
         raise InvalidTokenException(
             f"Token with token_id '{token_id}' has been revoked"
         )
@@ -96,26 +92,25 @@ async def revoke_token(claim: str, token: str, revoke_reason: str) -> bool:
 
     try:
         jwt_data = await validate_token(claim=claim, token=token)
-        revoked_token_db = RevokedTokenDb(
+        revoked_token = RevokedToken(
             **jwt_data,
             revoke_reason=revoke_reason,
         )
-        await revoked_token_db.save()
-        await cache.cache_entity(
+        await cache.put(
             prefix=REVOKED_TOKEN_CACHE_PREFIX,
-            key=revoked_token_db.token_id,
-            doc=revoked_token_db,
-            ttl=convert_timestamp_to_ttl(revoked_token_db.exp),
+            key=revoked_token.token_id,
+            doc=revoked_token,
+            ttl=convert_timestamp_to_ttl(revoked_token.exp),
         )
-    except (InvalidTokenException, DuplicateKeyError):
+    except InvalidTokenException:
         revoked = False
 
     return revoked
 
 
-async def is_token_revoked(token_id: str) -> bool:
-    revoked_token_db = await cache.fetch_entity(
-        prefix=REVOKED_TOKEN_CACHE_PREFIX, key=token_id, doc_model=RevokedTokenDb
+async def _is_token_revoked(token_id: str) -> bool:
+    revoked_token = await cache.fetch(
+        prefix=REVOKED_TOKEN_CACHE_PREFIX, key=token_id, doc_model=RevokedToken
     )
 
-    return revoked_token_db is not None
+    return revoked_token is not None

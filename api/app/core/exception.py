@@ -1,6 +1,7 @@
 from typing import Callable, Type
 
 from fastapi import FastAPI, Request
+from fastapi.exceptions import HTTPException
 from fastapi.responses import JSONResponse
 
 from app.core.api.model import ServerResponse
@@ -26,8 +27,7 @@ class UserDisabedException(Exception):
     pass
 
 
-def exception_mapping() -> dict:
-
+def _exception_mapping() -> dict:
     return {
         DataConflictException: 409,
         ResourceNotFoundException: 404,
@@ -37,7 +37,7 @@ def exception_mapping() -> dict:
     }
 
 
-def handler_factory(code: int) -> Callable:
+def _handler_factory(code: int) -> Callable:
     async def handler(_request: Request, exc: Type[Exception]) -> JSONResponse:
         response = ServerResponse(message=str(exc))
 
@@ -46,9 +46,18 @@ def handler_factory(code: int) -> Callable:
     return handler
 
 
+# todo: unit test
+def _http_exception_handler(_request: Request, exc: HTTPException) -> JSONResponse:
+    response = ServerResponse(message=exc.detail)
+
+    return JSONResponse(status_code=exc.status_code, content=response.dict())
+
+
+# todo: unit test
 def register_exceptions(app: FastAPI):
-    exceptions = exception_mapping()
+    exceptions = _exception_mapping()
 
     for exception, status_code in exceptions.items():
+        app.exception_handler(exception)(_handler_factory(status_code))
 
-        app.exception_handler(exception)(handler_factory(status_code))
+    app.exception_handler(HTTPException)(_http_exception_handler)

@@ -1,0 +1,45 @@
+pipeline {
+    agent any
+    stages {
+        stage('build') {
+            steps {
+                // docker build app
+                // docker build test app
+            }
+        }
+        stage('test') {
+            steps {
+                // pytest html coverage
+                // pytest xml coverage
+            }
+        }
+        stage('quality') {
+            steps {
+                // flake8
+                // vulture
+                // pylint
+                // sonar
+            }
+        }
+        stage('docs') {
+            steps {
+                // pdoc html
+            }
+        }
+        stage('integration') {
+            steps {
+                // pytest integration html
+            }
+        }
+        stage('perf') {
+            steps {
+                // locust html
+            }
+        }
+        stage('deploy') {
+            steps {
+                // deploy to server
+            }
+        }
+    }
+}
