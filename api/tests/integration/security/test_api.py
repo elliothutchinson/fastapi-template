@@ -1,3 +1,4 @@
+import orjson
 import pytest
 
 from tests.factories.server_response_factory import ServerResponseFactory
@@ -59,6 +60,32 @@ async def test_api_invalid_token(
 
 
 @pytest.mark.parametrize("_description,method,endpoint", api_data)
+async def test_api_revoked_token(  # pylint: disable=too-many-arguments
+    _description,
+    method,
+    endpoint,
+    client,
+    login_auth_token,
+    headers_access_token,
+    token_id,
+):
+    expected = ServerResponseFactory.build(
+        message=f"Token with token_id '{token_id}' has been revoked"
+    )
+
+    response = client.post("/api/v1/auth/logout", data=orjson.dumps(login_auth_token))
+    assert response.status_code == 200
+
+    request = client.build_request(method, endpoint, headers=headers_access_token)
+
+    actual = client.send(request)
+    actual.json()
+
+    assert actual.status_code == 401
+    assert actual.json() == expected
+
+
+@pytest.mark.parametrize("_description,method,endpoint", api_data)
 async def test_api_no_token(_description, method, endpoint, client):
     expected = ServerResponseFactory.build(message="Not authenticated")
 
@@ -69,8 +96,3 @@ async def test_api_no_token(_description, method, endpoint, client):
 
     assert actual.status_code == 401
     assert actual.json() == expected
-
-
-# todo: impl
-async def test_api_user_disabled():
-    pass

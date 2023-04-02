@@ -35,7 +35,9 @@ class AuthToken(BaseModel):
 
 
 async def user_login(username: str, password: SecretStr) -> AuthToken:
-    api_user = await _get_api_user(username=username, password=password)
+    api_user = await _get_api_user_from_credentials(
+        username=username, password=password
+    )
     updated_user = await user_service.update_private(
         username=api_user.username,
         user_update_private=UserUpdatePrivate(last_login=datetime.now(timezone.utc)),
@@ -79,14 +81,13 @@ async def refresh_access_token(refresh_token: str) -> AuthToken:
     refresh_token_expires_at = datetime.fromtimestamp(
         token_data["exp"], tz=timezone.utc
     )
-    user_private = await user_service.fetch(token_data["sub"])
-    user_public = UserPublic(**user_private.dict())
+    user = await _get_api_user_by_username(token_data["sub"])
 
     access_token, access_token_expires_at = generate_token(
         claim=ACCESS_TOKEN,
         expire_min=config.access_token_expire_min,
-        sub=user_public.username,
-        data=user_public,
+        sub=user.username,
+        data=user,
     )
 
     return AuthToken(
@@ -104,7 +105,9 @@ async def get_user_from_token(token: str = Depends(oauth2_scheme)) -> UserPublic
     return user
 
 
-async def _get_api_user(username: str, password: SecretStr) -> UserPublic:
+async def _get_api_user_from_credentials(
+    username: str, password: SecretStr
+) -> UserPublic:
     user = await _authenticate_user(username=username, password=password)
 
     if not user:
@@ -112,10 +115,18 @@ async def _get_api_user(username: str, password: SecretStr) -> UserPublic:
             f"Invalid credentials provided for username '{username}'"
         )
 
-    if user.disabled:
-        raise UserDisabedException(f"User '{username}' has been disabled")
+    _check_authorized(user)
 
     return user
+
+
+async def _get_api_user_by_username(username: str) -> UserPublic:
+    user_private = await user_service.fetch(username)
+    user_public = UserPublic(**user_private.dict())
+
+    _check_authorized(user_public)
+
+    return user_public
 
 
 async def _authenticate_user(
@@ -131,3 +142,10 @@ async def _authenticate_user(
         pass
 
     return user_public
+
+
+def _check_authorized(user: UserPublic) -> bool:
+    if user.disabled:
+        raise UserDisabedException(f"User '{user.username}' has been disabled")
+
+    return True

@@ -5,6 +5,7 @@ from beanie import Document, Indexed
 from pydantic import EmailStr
 from pymongo.errors import DuplicateKeyError
 
+from app.core import util
 from app.core.config import get_config
 from app.core.db import cache
 from app.core.exception import DataConflictException, ResourceNotFoundException
@@ -58,17 +59,6 @@ async def create(user_create: UserCreate, roles: List[str]) -> UserPrivate:
     return UserPrivate(**user_db.dict())
 
 
-# todo: add unit test
-def _update_date_timezones(user_private: UserPrivate):
-    user_private.date_created = user_private.date_created.replace(tzinfo=timezone.utc)
-    if user_private.date_modified:
-        user_private.date_modified = user_private.date_modified.replace(
-            tzinfo=timezone.utc
-        )
-    if user_private.last_login:
-        user_private.last_login = user_private.last_login.replace(tzinfo=timezone.utc)
-
-
 async def fetch(username: str) -> UserPrivate:
     logger.info(f"fetching user: {username} from db")
 
@@ -80,7 +70,9 @@ async def fetch(username: str) -> UserPrivate:
 
         if user_db:
             user_private = UserPrivate(**user_db.dict())
-            _update_date_timezones(user_private)
+            util.update_date_timezones_to_utc(
+                user_private, ["date_created", "date_modified", "last_login"]
+            )
             await cache.put(
                 prefix=USER_CACHE_PREFIX,
                 key=username,
@@ -124,7 +116,9 @@ async def update(username: str, user_update: UserUpdate) -> UserPrivate:
     await cache.delete(prefix=USER_CACHE_PREFIX, key=username)
 
     user_private = UserPrivate(**user_db.dict())
-    _update_date_timezones(user_private)
+    util.update_date_timezones_to_utc(
+        user_private, ["date_created", "date_modified", "last_login"]
+    )
 
     return user_private
 
@@ -155,6 +149,8 @@ async def update_private(
     await cache.delete(prefix=USER_CACHE_PREFIX, key=username)
 
     user_private = UserPrivate(**user_db.dict())
-    _update_date_timezones(user_private)
+    util.update_date_timezones_to_utc(
+        user_private, ["date_created", "date_modified", "last_login"]
+    )
 
     return user_private

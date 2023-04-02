@@ -1,5 +1,6 @@
 import os
 from datetime import datetime, timezone
+from unittest.mock import Mock
 
 import pytest
 from freezegun import freeze_time
@@ -118,6 +119,24 @@ def test_convert_datetime_to_str_no_skip(datetime_dict):
     uut.convert_datetime_to_str(actual)
 
     assert actual == expected
+
+
+def test_update_date_timezones_to_utc():
+    expected_date_1 = datetime(2020, 1, 1, 0, 0, tzinfo=timezone.utc)
+    expected_date_2 = datetime(2020, 1, 2, 0, 0)
+    expected_date_3 = None
+
+    actual = Mock(
+        date_1=datetime(2020, 1, 1, 0, 0),
+        date_2=datetime(2020, 1, 2, 0, 0),
+        date_3=None,
+    )
+
+    uut.update_date_timezones_to_utc(actual, ["date_1", "date_3", "date_4"])
+
+    assert actual.date_1 == expected_date_1
+    assert actual.date_2 == expected_date_2
+    assert actual.date_3 == expected_date_3
 
 
 def test_populate_from_env(_some_class_env, some_class_dict):

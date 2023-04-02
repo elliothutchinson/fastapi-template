@@ -9,6 +9,7 @@ from tests.unit.util import convert_to_env_vars
 
 @pytest.fixture
 def _config_api_docs_enabled():
+    # pylint: disable=duplicate-code
     config = ConfigFactory.build(api_docs_enabled=True)
     new_env = convert_to_env_vars(config.dict())
     original_env = dict(os.environ)

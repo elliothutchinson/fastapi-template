@@ -1,6 +1,7 @@
 from unittest.mock import Mock
 
 import pytest
+from fastapi.exceptions import HTTPException
 from fastapi.responses import JSONResponse
 
 from app.core import exception as uut
@@ -55,9 +56,20 @@ async def test__handler_factory():
     assert isinstance(actual_response, JSONResponse)
 
 
+def test__http_exception_handler():
+    actual = uut._http_exception_handler(  # pylint: disable=protected-access
+        Mock(), HTTPException(status_code=500, detail="test exception")
+    )
+
+    assert isinstance(actual, JSONResponse)
+
+
 def test_register_exceptions():
+    expected = 6
+
     mock_app = Mock(exception_handler=Mock())
 
     uut.register_exceptions(mock_app)
+    actual = mock_app.exception_handler.call_count
 
-    mock_app.exception_handler.assert_called()
+    assert actual == expected

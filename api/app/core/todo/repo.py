@@ -5,6 +5,7 @@ from uuid import UUID
 from beanie import Document, Indexed
 from pymongo.errors import DuplicateKeyError
 
+from app.core import util
 from app.core.exception import DataConflictException, ResourceNotFoundException
 from app.core.logging import get_logger
 
@@ -56,13 +57,6 @@ async def create_todo_list(username: str, todo_list_create: TodoListCreate) -> T
     return TodoList(**todo_list_db.dict())
 
 
-# todo: add unit test
-def _update_date_timezones_todo_list(todo_list: TodoList):
-    todo_list.date_created = todo_list.date_created.replace(tzinfo=timezone.utc)
-    if todo_list.date_modified:
-        todo_list.date_modified = todo_list.date_modified.replace(tzinfo=timezone.utc)
-
-
 async def fetch_todo_lists(username: str) -> List[TodoList]:
     todo_list_dbs = await TodoListDb.find_many(
         TodoListDb.username == username
@@ -71,7 +65,7 @@ async def fetch_todo_lists(username: str) -> List[TodoList]:
     todo_lists = [TodoList(**todo_list_db.dict()) for todo_list_db in todo_list_dbs]
 
     for todo_list in todo_lists:
-        _update_date_timezones_todo_list(todo_list)
+        util.update_date_timezones_to_utc(todo_list, ["date_created", "date_modified"])
 
     return todo_lists
 
@@ -101,7 +95,7 @@ async def update_todo_list(
     await todo_list_db.replace()
 
     todo_list = TodoList(**todo_list_db.dict())
-    _update_date_timezones_todo_list(todo_list)
+    util.update_date_timezones_to_utc(todo_list, ["date_created", "date_modified"])
 
     return todo_list
 
@@ -128,7 +122,7 @@ async def delete_todo_list(username: str, todo_list_id: UUID) -> TodoList:
     await todo_list_db.delete()
 
     todo_list = TodoList(**todo_list_db.dict())
-    _update_date_timezones_todo_list(todo_list)
+    util.update_date_timezones_to_utc(todo_list, ["date_created", "date_modified"])
 
     return todo_list
 
@@ -146,7 +140,7 @@ async def _validate_todo_list(username: str, todo_list_id: UUID) -> TodoListDb:
         )
 
     todo_list_db = todo_list_dbs[0]
-    _update_date_timezones_todo_list(todo_list_db)
+    util.update_date_timezones_to_utc(todo_list_db, ["date_created", "date_modified"])
 
     return todo_list_db
 
@@ -167,13 +161,6 @@ async def create_todo(username: str, todo_create: TodoCreate) -> Todo:
         ) from dke
 
     return Todo(**todo_db.dict())
-
-
-# todo: add unit test, consider moving to one
-def _update_date_timezones_todo(todo: Todo):
-    todo.date_created = todo.date_created.replace(tzinfo=timezone.utc)
-    if todo.date_modified:
-        todo.date_modified = todo.date_modified.replace(tzinfo=timezone.utc)
 
 
 async def fetch_todos(
@@ -206,7 +193,7 @@ async def fetch_todos(
     todos = [Todo(**todo_db.dict()) for todo_db in todo_dbs]
 
     for todo in todos:
-        _update_date_timezones_todo(todo)
+        util.update_date_timezones_to_utc(todo, ["date_created", "date_modified"])
 
     return todos
 
@@ -241,7 +228,7 @@ async def update_todo(username: str, todo_id: UUID, todo_update: TodoUpdate) -> 
     await todo_db.replace()
 
     todo = Todo(**todo_db.dict())
-    _update_date_timezones_todo(todo)
+    util.update_date_timezones_to_utc(todo, ["date_created", "date_modified"])
 
     return todo
 
@@ -262,6 +249,6 @@ async def delete_todo(username: str, todo_id: UUID) -> Todo:
     await todo_db.delete()
 
     todo = Todo(**todo_db.dict())
-    _update_date_timezones_todo(todo)
+    util.update_date_timezones_to_utc(todo, ["date_created", "date_modified"])
 
     return todo

@@ -162,3 +162,17 @@ async def test_refresh_auth_token_invalid_token(client, login_auth_token):
 
     assert actual.status_code == 401
     assert actual.json() == expected
+
+
+async def test_refresh_auth_token_disabled(client, login_auth_token, created_user):
+    created_user.disabled = True
+    await created_user.save()
+
+    expected = ServerResponseFactory.build(
+        message=f"User '{created_user.username}' has been disabled"
+    )
+
+    actual = client.post("/api/v1/auth/refresh", data=orjson.dumps(login_auth_token))
+
+    assert actual.status_code == 403
+    assert actual.json() == expected

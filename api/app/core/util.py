@@ -2,7 +2,7 @@ import os
 from datetime import datetime, timezone
 
 # look into using list[str] etc for lists instead of import
-from typing import List, Type, TypeVar, get_type_hints
+from typing import Any, List, Type, TypeVar, get_type_hints
 
 from pydantic import BaseModel, SecretStr
 
@@ -31,6 +31,14 @@ def convert_datetime_to_str(data: dict, skip: List[str] = None):
             convert_datetime_to_str(data=data[key], skip=skip)
         elif isinstance(data[key], datetime):
             data[key] = data[key].isoformat(timespec="milliseconds")
+
+
+def update_date_timezones_to_utc(data: Any, attributes: list[str]):
+    for attribute in attributes:
+        if hasattr(data, attribute) and getattr(data, attribute):
+            setattr(
+                data, attribute, getattr(data, attribute).replace(tzinfo=timezone.utc)
+            )
 
 
 def populate_from_env(doc_model: Type[PydanticModel]) -> dict:

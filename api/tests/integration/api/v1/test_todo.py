@@ -36,6 +36,7 @@ async def todo_data(user_access_token):
 
 
 async def test_create_todo_list(client, headers_access_token):
+    # pylint: disable=duplicate-code
     todo_list_create = TodoListCreateFactory.build()
 
     expected = json_dict(
@@ -49,6 +50,31 @@ async def test_create_todo_list(client, headers_access_token):
     )
     actual_json = actual.json()
     actual_date_created = datetime.fromisoformat(actual_json.pop("date_created"))
+
+    assert actual.status_code == 200
+    assert actual_date_created > datetime.now(timezone.utc) - timedelta(seconds=5)
+    assert actual_json == expected
+
+
+async def test_create_todo_list_persists(client, headers_access_token):
+    todo_list_create = TodoListCreateFactory.build()
+
+    expected = json_dict(
+        [
+            TodoListFactory.build(created=True, **todo_list_create.dict()).dict(
+                exclude={"date_created"}
+            )
+        ]
+    )
+
+    response = client.post(
+        "/api/v1/todo/list", headers=headers_access_token, data=todo_list_create.json()
+    )
+    assert response.status_code == 200
+
+    actual = client.get("/api/v1/todo/list", headers=headers_access_token)
+    actual_json = actual.json()
+    actual_date_created = datetime.fromisoformat(actual_json[0].pop("date_created"))
 
     assert actual.status_code == 200
     assert actual_date_created > datetime.now(timezone.utc) - timedelta(seconds=5)
@@ -90,8 +116,8 @@ async def test_fetch_todo_lists(client, headers_access_token, user_access_token)
     assert actual.json() == expected
 
 
-# todo: fetch and get updated todo list
 async def test_update_todo_list(client, headers_access_token, user_access_token):
+    # pylint: disable=duplicate-code
     todo_list_db = await TodoListDbFactory.create(username=user_access_token.username)
     todo_list_update = TodoListUpdateFactory.build()
     todo_list_dict = todo_list_db.dict() | todo_list_update.dict()
@@ -105,6 +131,31 @@ async def test_update_todo_list(client, headers_access_token, user_access_token)
     )
     actual_json = actual.json()
     actual_date_modified = datetime.fromisoformat(actual_json.pop("date_modified"))
+
+    assert actual.status_code == 200
+    assert actual_date_modified > datetime.now(timezone.utc) - timedelta(seconds=5)
+    assert actual_json == expected
+
+
+async def test_update_todo_list_persists(
+    client, headers_access_token, user_access_token
+):
+    todo_list_db = await TodoListDbFactory.create(username=user_access_token.username)
+    todo_list_update = TodoListUpdateFactory.build()
+    todo_list_dict = todo_list_db.dict() | todo_list_update.dict()
+
+    expected = json_dict([TodoList(**todo_list_dict).dict(exclude={"date_modified"})])
+
+    response = client.put(
+        f"/api/v1/todo/list/{todo_list_db.todo_list_id}",
+        headers=headers_access_token,
+        data=todo_list_update.json(),
+    )
+    assert response.status_code == 200
+
+    actual = client.get("/api/v1/todo/list", headers=headers_access_token)
+    actual_json = actual.json()
+    actual_date_modified = datetime.fromisoformat(actual_json[0].pop("date_modified"))
 
     assert actual.status_code == 200
     assert actual_date_modified > datetime.now(timezone.utc) - timedelta(seconds=5)
@@ -131,7 +182,6 @@ async def test_update_todo_list_not_exists(
     assert actual.json() == expected
 
 
-# todo: fetch and verify removed
 async def test_delete_todo_list(client, headers_access_token, user_access_token):
     todo_list_db = await TodoListDbFactory.create(username=user_access_token.username)
 
@@ -146,21 +196,22 @@ async def test_delete_todo_list(client, headers_access_token, user_access_token)
     assert actual.json() == expected
 
 
-async def test_delete_todo_list_not_exists(
+async def test_delete_todo_list_deletes_todo_list(
     client, headers_access_token, user_access_token
 ):
-    todo_list = TodoListFactory.build(username=user_access_token.username)
+    todo_list_db = await TodoListDbFactory.create(username=user_access_token.username)
 
-    expected = ServerResponseFactory.build(
-        message=f"Todo list resource not found with id '{todo_list.todo_list_id}'"
-    )
+    expected = []
 
-    actual = client.delete(
-        f"/api/v1/todo/list/{todo_list.todo_list_id}",
+    response = client.delete(
+        f"/api/v1/todo/list/{todo_list_db.todo_list_id}",
         headers=headers_access_token,
     )
+    assert response.status_code == 200
 
-    assert actual.status_code == 404
+    actual = client.get("/api/v1/todo/list", headers=headers_access_token)
+
+    assert actual.status_code == 200
     assert actual.json() == expected
 
 
@@ -189,6 +240,24 @@ async def test_delete_todo_list_deletes_todos(
     assert actual.json() == expected
 
 
+async def test_delete_todo_list_not_exists(
+    client, headers_access_token, user_access_token
+):
+    todo_list = TodoListFactory.build(username=user_access_token.username)
+
+    expected = ServerResponseFactory.build(
+        message=f"Todo list resource not found with id '{todo_list.todo_list_id}'"
+    )
+
+    actual = client.delete(
+        f"/api/v1/todo/list/{todo_list.todo_list_id}",
+        headers=headers_access_token,
+    )
+
+    assert actual.status_code == 404
+    assert actual.json() == expected
+
+
 async def test_create_todo(client, headers_access_token, user_access_token):
     todo_list_db = await TodoListDbFactory.create(username=user_access_token.username)
     todo_create = TodoCreateFactory.build(todo_list_id=todo_list_db.todo_list_id)
@@ -204,6 +273,32 @@ async def test_create_todo(client, headers_access_token, user_access_token):
     )
     actual_json = actual.json()
     actual_date_created = datetime.fromisoformat(actual_json.pop("date_created"))
+
+    assert actual.status_code == 200
+    assert actual_date_created > datetime.now(timezone.utc) - timedelta(seconds=5)
+    assert actual_json == expected
+
+
+async def test_create_todo_persists(client, headers_access_token, user_access_token):
+    todo_list_db = await TodoListDbFactory.create(username=user_access_token.username)
+    todo_create = TodoCreateFactory.build(todo_list_id=todo_list_db.todo_list_id)
+
+    expected = json_dict(
+        [
+            TodoFactory.build(created=True, **todo_create.dict()).dict(
+                exclude={"date_created"}
+            )
+        ]
+    )
+
+    response = client.post(
+        "/api/v1/todo/task", headers=headers_access_token, data=todo_create.json()
+    )
+    assert response.status_code == 200
+
+    actual = client.get("/api/v1/todo/task", headers=headers_access_token)
+    actual_json = actual.json()
+    actual_date_created = datetime.fromisoformat(actual_json[0].pop("date_created"))
 
     assert actual.status_code == 200
     assert actual_date_created > datetime.now(timezone.utc) - timedelta(seconds=5)
@@ -306,8 +401,8 @@ async def test_fetch_todos_incomplete_only_false(
     assert actual.json() == expected
 
 
-# todo: fetch and get updated todo
 async def test_update_todo(client, headers_access_token, user_access_token):
+    # pylint: disable=duplicate-code
     todo_list_db_1 = await TodoListDbFactory.create(username=user_access_token.username)
     todo_list_db_2 = await TodoListDbFactory.create(username=user_access_token.username)
     todo_db = await TodoDbFactory.create(
@@ -326,6 +421,34 @@ async def test_update_todo(client, headers_access_token, user_access_token):
     )
     actual_json = actual.json()
     actual_date_modified = datetime.fromisoformat(actual_json.pop("date_modified"))
+
+    assert actual.status_code == 200
+    assert actual_date_modified > datetime.now(timezone.utc) - timedelta(seconds=5)
+    assert actual_json == expected
+
+
+async def test_update_todo_persists(client, headers_access_token, user_access_token):
+    todo_list_db_1 = await TodoListDbFactory.create(username=user_access_token.username)
+    todo_list_db_2 = await TodoListDbFactory.create(username=user_access_token.username)
+    todo_db = await TodoDbFactory.create(
+        username=user_access_token.username,
+        todo_list_id=todo_list_db_1.todo_list_id,
+    )
+    todo_update = TodoUpdateFactory.build(todo_list_id=todo_list_db_2.todo_list_id)
+    todo_dict = todo_db.dict() | todo_update.dict()
+
+    expected = json_dict([Todo(**todo_dict).dict(exclude={"date_modified"})])
+
+    response = client.put(
+        f"/api/v1/todo/task/{todo_db.todo_id}",
+        headers=headers_access_token,
+        data=todo_update.json(),
+    )
+    assert response.status_code == 200
+
+    actual = client.get("/api/v1/todo/task", headers=headers_access_token)
+    actual_json = actual.json()
+    actual_date_modified = datetime.fromisoformat(actual_json[0].pop("date_modified"))
 
     assert actual.status_code == 200
     assert actual_date_modified > datetime.now(timezone.utc) - timedelta(seconds=5)

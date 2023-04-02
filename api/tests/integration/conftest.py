@@ -53,8 +53,18 @@ def headers_access_token(login_auth_token):
 
 
 @pytest.fixture
-def user_access_token(login_auth_token):
-    token_data = jwt.decode(
+def token_data(login_auth_token):
+    data = jwt.decode(
         login_auth_token["access_token"], options={"verify_signature": False}
     )
+    return data
+
+
+@pytest.fixture
+def user_access_token(token_data):
     return UserPublic(**token_data["data"])
+
+
+@pytest.fixture
+def token_id(token_data):
+    return token_data["token_id"]

@@ -127,7 +127,6 @@ def test_fetch_todos(client, mocker, auth_headers, override_get_user_from_token)
     assert actual.json() == expected
 
 
-# todo: address clarity
 def test_fetch_todos_from_list(
     client, mocker, auth_headers, override_get_user_from_token
 ):

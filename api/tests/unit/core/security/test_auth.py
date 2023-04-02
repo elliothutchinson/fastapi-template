@@ -128,6 +128,22 @@ async def test_user_login_invalid_credentials(mocker):
         )
 
 
+async def test_user_login_disabled(mocker):
+    user_private = UserPrivateFactory.build(joe=True, disabled=True)
+
+    mocker.patch(
+        "app.core.security.auth.user_service.fetch",
+        AsyncMock(return_value=user_private),
+    )
+
+    with pytest.raises(
+        UserDisabedException, match=f"User '{user_private.username}' has been disabled"
+    ):
+        await uut.user_login(
+            username=user_private.username, password=SecretStr("password")
+        )
+
+
 @freeze_time("2020-01-01 00:00:00")
 async def test_user_logout(mocker):
     auth_token = AuthTokenFactory.build()
@@ -174,6 +190,30 @@ async def test_refresh_access_token(mocker):
     assert actual == expected
 
 
+@freeze_time("2020-01-01 00:00:00")
+async def test_refresh_access_token_disabled(mocker):
+    auth_token = AuthTokenFactory.build(jan_01_2020=True)
+    user_private = UserPrivateFactory.build(joe=True, disabled=True)
+
+    token_data = {
+        "exp": 1577847600,
+        "sub": "Joe",
+    }
+
+    mocker.patch(
+        "app.core.security.auth.validate_token", AsyncMock(return_value=token_data)
+    )
+    mocker.patch(
+        "app.core.security.auth.user_service.fetch",
+        AsyncMock(return_value=user_private),
+    )
+
+    with pytest.raises(
+        UserDisabedException, match=f"User '{user_private.username}' has been disabled"
+    ):
+        await uut.refresh_access_token(auth_token.refresh_token)
+
+
 async def test_get_user_from_token(mocker):
     auth_token = AuthTokenFactory.build(jan_01_2020=True)
     user_public = UserPublicFactory.build(joe=True)
@@ -191,7 +231,7 @@ async def test_get_user_from_token(mocker):
     assert actual == expected
 
 
-async def test__get_api_user(mocker):
+async def test__get_api_user_from_credentials(mocker):
     user_private = UserPrivateFactory.build(joe=True)
 
     expected = UserPublic(**user_private.dict())
@@ -201,14 +241,16 @@ async def test__get_api_user(mocker):
         AsyncMock(return_value=user_private),
     )
 
-    actual = await uut._get_api_user(  # pylint: disable=protected-access
-        username=user_private.username, password=SecretStr("password")
+    actual = (
+        await uut._get_api_user_from_credentials(  # pylint: disable=protected-access
+            username=user_private.username, password=SecretStr("password")
+        )
     )
 
     assert actual == expected
 
 
-async def test__get_api_user_invalid_credentials(mocker):
+async def test__get_api_user_from_credentials_invalid_credentials(mocker):
     user_private = UserPrivateFactory.build(joe=True)
 
     mocker.patch(
@@ -220,12 +262,12 @@ async def test__get_api_user_invalid_credentials(mocker):
         InvalidCredentialException,
         match=f"Invalid credentials provided for username '{user_private.username}'",
     ):
-        await uut._get_api_user(  # pylint: disable=protected-access
+        await uut._get_api_user_from_credentials(  # pylint: disable=protected-access
             username=user_private.username, password=SecretStr("invalid")
         )
 
 
-async def test__get_api_user_disabled(mocker):
+async def test__get_api_user_from_credentials_disabled(mocker):
     user_private = UserPrivateFactory.build(joe=True, disabled=True)
 
     mocker.patch(
@@ -236,8 +278,41 @@ async def test__get_api_user_disabled(mocker):
     with pytest.raises(
         UserDisabedException, match=f"User '{user_private.username}' has been disabled"
     ):
-        await uut._get_api_user(  # pylint: disable=protected-access
+        await uut._get_api_user_from_credentials(  # pylint: disable=protected-access
             username=user_private.username, password=SecretStr("password")
+        )
+
+
+async def test__get_api_user_by_username(mocker):
+    user_private = UserPrivateFactory.build(joe=True)
+
+    expected = UserPublic(**user_private.dict())
+
+    mocker.patch(
+        "app.core.security.auth.user_service.fetch",
+        AsyncMock(return_value=user_private),
+    )
+
+    actual = await uut._get_api_user_by_username(  # pylint: disable=protected-access
+        username=user_private.username
+    )
+
+    assert actual == expected
+
+
+async def test__get_api_user_by_username_disabled(mocker):
+    user_private = UserPrivateFactory.build(joe=True, disabled=True)
+
+    mocker.patch(
+        "app.core.security.auth.user_service.fetch",
+        AsyncMock(return_value=user_private),
+    )
+
+    with pytest.raises(
+        UserDisabedException, match=f"User '{user_private.username}' has been disabled"
+    ):
+        await uut._get_api_user_by_username(  # pylint: disable=protected-access
+            username=user_private.username
         )
 
 
@@ -290,3 +365,22 @@ async def test__authenticate_user_invalid_credentials(mocker):
     )
 
     assert actual == expected
+
+
+def test__check_authorized():
+    user_public = UserPublicFactory.build(disabled=False)
+
+    expected = True
+
+    actual = uut._check_authorized(user_public)  # pylint: disable=protected-access
+
+    assert actual == expected
+
+
+def test__check_authorized_disabled():
+    user_public = UserPublicFactory.build(disabled=True)
+
+    with pytest.raises(
+        UserDisabedException, match=f"User '{user_public.username}' has been disabled"
+    ):
+        uut._check_authorized(user_public)  # pylint: disable=protected-access

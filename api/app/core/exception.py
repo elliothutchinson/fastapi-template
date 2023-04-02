@@ -46,14 +46,12 @@ def _handler_factory(code: int) -> Callable:
     return handler
 
 
-# todo: unit test
 def _http_exception_handler(_request: Request, exc: HTTPException) -> JSONResponse:
     response = ServerResponse(message=exc.detail)
 
     return JSONResponse(status_code=exc.status_code, content=response.dict())
 
 
-# todo: unit test
 def register_exceptions(app: FastAPI):
     exceptions = _exception_mapping()
 
