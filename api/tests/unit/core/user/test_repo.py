@@ -14,6 +14,8 @@ from tests.factories.user_factory import (
     UserUpdatePrivateFactory,
 )
 
+UUT_PATH = "app.core.user.repo"
+
 
 def test_UserDb(_setup_db):
     user_db = UserDbFactory.build()
@@ -52,8 +54,7 @@ async def test_create(_setup_db, mocker):
     expected = user_private
 
     mocker.patch(
-        "app.core.user.repo.crypt.hash_password",
-        Mock(return_value=user_private.password_hash),
+        f"{UUT_PATH}.crypt.hash_password", Mock(return_value=user_private.password_hash)
     )
 
     actual = await uut.create(user_create=user_create, roles=user_private.roles)
@@ -74,8 +75,7 @@ async def test_create_default_roles(_setup_db, mocker):
     expected.roles = []
 
     mocker.patch(
-        "app.core.user.repo.crypt.hash_password",
-        Mock(return_value=user_private.password_hash),
+        f"{UUT_PATH}.crypt.hash_password", Mock(return_value=user_private.password_hash)
     )
 
     actual = await uut.create(user_create=user_create, roles=None)
@@ -93,8 +93,7 @@ async def test_create_already_exists(_setup_db, mocker):
     )
 
     mocker.patch(
-        "app.core.user.repo.crypt.hash_password",
-        Mock(return_value=user_db.password_hash),
+        f"{UUT_PATH}.crypt.hash_password", Mock(return_value=user_db.password_hash)
     )
 
     with pytest.raises(DataConflictException, match="Email or username already exists"):
@@ -106,7 +105,7 @@ async def test_fetch_cache_hit(_setup_db, mocker):
 
     expected = user_private
 
-    mocker.patch("app.core.user.repo.cache.fetch", AsyncMock(return_value=user_private))
+    mocker.patch(f"{UUT_PATH}.cache.fetch", AsyncMock(return_value=user_private))
 
     actual = await uut.fetch(user_private.username)
 
@@ -147,9 +146,7 @@ async def test_update_all(_setup_db, _setup_cache, mocker):
     expected.date_modified = datetime(2020, 1, 1, 0, 0, tzinfo=timezone.utc)
     expected.password_hash = "password_hash"
 
-    mocker.patch(
-        "app.core.user.repo.crypt.hash_password", Mock(return_value="password_hash")
-    )
+    mocker.patch(f"{UUT_PATH}.crypt.hash_password", Mock(return_value="password_hash"))
 
     actual = await uut.update(username=user_db.username, user_update=user_update)
 

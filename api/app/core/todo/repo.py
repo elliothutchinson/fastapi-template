@@ -1,5 +1,4 @@
 from datetime import datetime, timezone
-from typing import List
 from uuid import UUID
 
 from beanie import Document, Indexed
@@ -57,7 +56,7 @@ async def create_todo_list(username: str, todo_list_create: TodoListCreate) -> T
     return TodoList(**todo_list_db.dict())
 
 
-async def fetch_todo_lists(username: str) -> List[TodoList]:
+async def fetch_todo_lists(username: str) -> list[TodoList]:
     todo_list_dbs = await TodoListDb.find_many(
         TodoListDb.username == username
     ).to_list()
@@ -165,7 +164,7 @@ async def create_todo(username: str, todo_create: TodoCreate) -> Todo:
 
 async def fetch_todos(
     username: str, todo_list_id: UUID = None, incomplete_only: bool = False
-) -> List[Todo]:
+) -> list[Todo]:
     todo_dbs = []
 
     if todo_list_id and incomplete_only:

@@ -1,5 +1,3 @@
-from typing import List
-
 from app.core.config import get_config
 from app.core.logging import get_logger
 from app.core.user import repo as user_repo
@@ -11,7 +9,7 @@ logger = get_logger(__name__)
 config = get_config()
 
 
-async def create(user_create: UserCreate, roles: List[str]) -> UserPrivate:
+async def create(user_create: UserCreate, roles: list[str]) -> UserPrivate:
     return await user_repo.create(user_create=user_create, roles=roles)
 
 

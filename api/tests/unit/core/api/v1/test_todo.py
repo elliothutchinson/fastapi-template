@@ -10,6 +10,8 @@ from tests.factories.todo_factory import (
 )
 from tests.util import json_dict
 
+UUT_PATH = "app.core.api.v1.todo"
+
 
 def test_create_todo_list(client, mocker, auth_headers, override_get_user_from_token):
     todo_list_create = TodoListCreateFactory.build()
@@ -20,8 +22,7 @@ def test_create_todo_list(client, mocker, auth_headers, override_get_user_from_t
     expected = json_dict(todo_list.dict())
 
     mocker.patch(
-        "app.core.api.v1.todo.todo_service.create_todo_list",
-        AsyncMock(return_value=todo_list),
+        f"{UUT_PATH}.todo_service.create_todo_list", AsyncMock(return_value=todo_list)
     )
 
     actual = client.post(
@@ -39,7 +40,7 @@ def test_fetch_todo_lists(client, mocker, auth_headers, override_get_user_from_t
     expected = json_dict([todo_list_1.dict(), todo_list_2.dict()])
 
     mocker.patch(
-        "app.core.api.v1.todo.todo_service.fetch_todo_lists",
+        f"{UUT_PATH}.todo_service.fetch_todo_lists",
         AsyncMock(return_value=[todo_list_1, todo_list_2]),
     )
 
@@ -58,8 +59,7 @@ def test_update_todo_list(client, mocker, auth_headers, override_get_user_from_t
     expected = json_dict(todo_list.dict())
 
     mocker.patch(
-        "app.core.api.v1.todo.todo_service.update_todo_list",
-        AsyncMock(return_value=todo_list),
+        f"{UUT_PATH}.todo_service.update_todo_list", AsyncMock(return_value=todo_list)
     )
 
     actual = client.put(
@@ -78,8 +78,7 @@ def test_delete_todo_list(client, mocker, auth_headers, override_get_user_from_t
     expected = json_dict(todo_list.dict())
 
     mocker.patch(
-        "app.core.api.v1.todo.todo_service.delete_todo_list",
-        AsyncMock(return_value=todo_list),
+        f"{UUT_PATH}.todo_service.delete_todo_list", AsyncMock(return_value=todo_list)
     )
 
     actual = client.delete(
@@ -98,9 +97,7 @@ def test_create_todo(client, mocker, auth_headers, override_get_user_from_token)
 
     expected = json_dict(todo.dict())
 
-    mocker.patch(
-        "app.core.api.v1.todo.todo_service.create_todo", AsyncMock(return_value=todo)
-    )
+    mocker.patch(f"{UUT_PATH}.todo_service.create_todo", AsyncMock(return_value=todo))
 
     actual = client.post(
         "/api/v1/todo/task", headers=auth_headers, data=todo_create.json()
@@ -117,8 +114,7 @@ def test_fetch_todos(client, mocker, auth_headers, override_get_user_from_token)
     expected = json_dict([todo_1.dict(), todo_2.dict()])
 
     mocker.patch(
-        "app.core.api.v1.todo.todo_service.fetch_todos",
-        AsyncMock(return_value=[todo_1, todo_2]),
+        f"{UUT_PATH}.todo_service.fetch_todos", AsyncMock(return_value=[todo_1, todo_2])
     )
 
     actual = client.get("/api/v1/todo/task", headers=auth_headers)
@@ -138,8 +134,7 @@ def test_fetch_todos_from_list(
     expected = json_dict([todo_1.dict(), todo_2.dict()])
 
     mocker.patch(
-        "app.core.api.v1.todo.todo_service.fetch_todos",
-        AsyncMock(return_value=[todo_1, todo_2]),
+        f"{UUT_PATH}.todo_service.fetch_todos", AsyncMock(return_value=[todo_1, todo_2])
     )
 
     actual = client.get(
@@ -164,8 +159,7 @@ def test_fetch_todos_incomplete(
     expected = json_dict([todo_1.dict(), todo_2.dict()])
 
     mocker.patch(
-        "app.core.api.v1.todo.todo_service.fetch_todos",
-        AsyncMock(return_value=[todo_1, todo_2]),
+        f"{UUT_PATH}.todo_service.fetch_todos", AsyncMock(return_value=[todo_1, todo_2])
     )
 
     actual = client.get(
@@ -185,9 +179,7 @@ def test_update_todo(client, mocker, auth_headers, override_get_user_from_token)
 
     expected = json_dict(todo.dict())
 
-    mocker.patch(
-        "app.core.api.v1.todo.todo_service.update_todo", AsyncMock(return_value=todo)
-    )
+    mocker.patch(f"{UUT_PATH}.todo_service.update_todo", AsyncMock(return_value=todo))
 
     actual = client.put(
         f"/api/v1/todo/task/{todo.todo_id}", headers=auth_headers, data=todo.json()
@@ -202,9 +194,7 @@ def test_delete_todo(client, mocker, auth_headers, override_get_user_from_token)
 
     expected = json_dict(todo.dict())
 
-    mocker.patch(
-        "app.core.api.v1.todo.todo_service.delete_todo", AsyncMock(return_value=todo)
-    )
+    mocker.patch(f"{UUT_PATH}.todo_service.delete_todo", AsyncMock(return_value=todo))
 
     actual = client.delete(f"/api/v1/todo/task/{todo.todo_id}", headers=auth_headers)
 

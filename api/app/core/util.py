@@ -1,8 +1,6 @@
 import os
 from datetime import datetime, timezone
-
-# look into using list[str] etc for lists instead of import
-from typing import Any, List, Type, TypeVar, get_type_hints
+from typing import Any, Type, TypeVar, get_type_hints
 
 from pydantic import BaseModel, SecretStr
 
@@ -16,7 +14,7 @@ def convert_timestamp_to_ttl(timestamp: int) -> int:
     return max(1, ttl)
 
 
-def convert_datetime_to_str(data: dict, skip: List[str] = None):
+def convert_datetime_to_str(data: dict, skip: list[str] = None):
     """
     Mutates provided data dict, stringifying datetime objects not provided in skip list.
     """

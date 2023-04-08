@@ -8,6 +8,8 @@ from tests.factories.user_factory import (
     UserUpdatePrivateFactory,
 )
 
+UUT_PATH = "app.core.user.service"
+
 
 async def test_create(mocker):
     user_private = UserPrivateFactory.build()
@@ -16,9 +18,7 @@ async def test_create(mocker):
 
     expected = user_private
 
-    mocker.patch(
-        "app.core.user.service.user_repo.create", AsyncMock(return_value=user_private)
-    )
+    mocker.patch(f"{UUT_PATH}.user_repo.create", AsyncMock(return_value=user_private))
 
     actual = await uut.create(user_create=user_create, roles=user_private.roles)
 
@@ -30,9 +30,7 @@ async def test_fetch(mocker):
 
     expected = user_private
 
-    mocker.patch(
-        "app.core.user.service.user_repo.fetch", AsyncMock(return_value=user_private)
-    )
+    mocker.patch(f"{UUT_PATH}.user_repo.fetch", AsyncMock(return_value=user_private))
 
     actual = await uut.fetch(user_private.username)
 
@@ -45,9 +43,7 @@ async def test_update(mocker):
 
     expected = user_private
 
-    mocker.patch(
-        "app.core.user.service.user_repo.update", AsyncMock(return_value=user_private)
-    )
+    mocker.patch(f"{UUT_PATH}.user_repo.update", AsyncMock(return_value=user_private))
 
     actual = await uut.update(username=user_private.username, user_update=user_update)
 
@@ -61,8 +57,7 @@ async def test_update_private(mocker):
     expected = user_private
 
     mocker.patch(
-        "app.core.user.service.user_repo.update_private",
-        AsyncMock(return_value=user_private),
+        f"{UUT_PATH}.user_repo.update_private", AsyncMock(return_value=user_private)
     )
 
     actual = await uut.update_private(

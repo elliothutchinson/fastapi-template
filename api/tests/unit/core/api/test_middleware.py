@@ -5,6 +5,8 @@ import pytest
 
 from app.core.api import middleware as uut
 
+UUT_PATH = "app.core.api.middleware"
+
 
 @pytest.fixture
 def request_id_str():
@@ -24,10 +26,8 @@ async def test_RequestIdMiddleware_dispatch_new_request_id(mocker, request_id_st
 
     mock_context_request_id = Mock()
 
-    mocker.patch(
-        "app.core.api.middleware.uuid4", Mock(return_value=UUID(request_id_str))
-    )
-    mocker.patch("app.core.api.middleware.ctx_request_id", mock_context_request_id)
+    mocker.patch(f"{UUT_PATH}.uuid4", Mock(return_value=UUID(request_id_str)))
+    mocker.patch(f"{UUT_PATH}.ctx_request_id", mock_context_request_id)
 
     actual = await uut.RequestIdMiddleware(Mock()).dispatch(
         mock_request, mock_call_next
@@ -50,7 +50,7 @@ async def test_RequestIdMiddleware_dispatch_existing_request_id(mocker, request_
 
     mock_context_request_id = Mock()
 
-    mocker.patch("app.core.api.middleware.ctx_request_id", mock_context_request_id)
+    mocker.patch(f"{UUT_PATH}.ctx_request_id", mock_context_request_id)
 
     actual = await uut.RequestIdMiddleware(Mock()).dispatch(
         mock_request, mock_call_next
@@ -71,7 +71,7 @@ async def test_RequestIdMiddleware_dispatch_request_ip(mocker):
 
     mock_context_request_ip = Mock()
 
-    mocker.patch("app.core.api.middleware.ctx_request_ip", mock_context_request_ip)
+    mocker.patch(f"{UUT_PATH}.ctx_request_ip", mock_context_request_ip)
 
     await uut.RequestIdMiddleware(Mock()).dispatch(mock_request, AsyncMock())
 

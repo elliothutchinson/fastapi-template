@@ -10,6 +10,8 @@ from app.core.exception import InvalidTokenException
 from app.core.security import token as uut
 from tests.factories.token_factory import RevokedTokenFactory
 
+UUT_PATH = "app.core.security.token"
+
 
 class TokenData(BaseModel):
     data: str
@@ -22,7 +24,7 @@ def token_id():
 
 @pytest.fixture
 def token_with_data(mocker, token_id):
-    mocker.patch("app.core.security.token.uuid4", Mock(return_value=UUID(token_id)))
+    mocker.patch(f"{UUT_PATH}.uuid4", Mock(return_value=UUID(token_id)))
 
     return (
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9."
@@ -33,7 +35,7 @@ def token_with_data(mocker, token_id):
 
 @pytest.fixture
 def token_no_data(mocker, token_id):
-    mocker.patch("app.core.security.token.uuid4", Mock(return_value=UUID(token_id)))
+    mocker.patch(f"{UUT_PATH}.uuid4", Mock(return_value=UUID(token_id)))
 
     return (
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9."
@@ -118,9 +120,7 @@ async def test_validate_token(_setup_cache, token_no_data, token_id):
 async def test_validate_token_revoked(mocker, token_no_data, token_id):
     revoked_token = RevokedTokenFactory.build()
 
-    mocker.patch(
-        "app.core.security.token.cache.fetch", AsyncMock(return_value=revoked_token)
-    )
+    mocker.patch(f"{UUT_PATH}.cache.fetch", AsyncMock(return_value=revoked_token))
 
     with pytest.raises(
         InvalidTokenException,
@@ -156,9 +156,7 @@ async def test_revoke_token(_setup_cache, token_no_data):
 async def test_revoke_token_already_revoked(mocker, token_no_data):
     revoked_token = RevokedTokenFactory.build()
 
-    mocker.patch(
-        "app.core.security.token.cache.fetch", AsyncMock(return_value=revoked_token)
-    )
+    mocker.patch(f"{UUT_PATH}.cache.fetch", AsyncMock(return_value=revoked_token))
 
     actual = await uut.revoke_token(
         claim="TEST", token=token_no_data, revoke_reason="testing"
@@ -178,9 +176,7 @@ async def test_revoke_token_expired(_setup_cache, token_no_data):
 async def test__is_token_revoked_true(mocker, token_id):
     revoked_token = RevokedTokenFactory.build()
 
-    mocker.patch(
-        "app.core.security.token.cache.fetch", AsyncMock(return_value=revoked_token)
-    )
+    mocker.patch(f"{UUT_PATH}.cache.fetch", AsyncMock(return_value=revoked_token))
 
     actual = await uut._is_token_revoked(token_id)  # pylint: disable=protected-access
 

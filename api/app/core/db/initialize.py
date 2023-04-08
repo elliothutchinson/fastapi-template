@@ -1,5 +1,3 @@
-from typing import List
-
 from beanie import Document, init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient
 
@@ -8,7 +6,7 @@ from app.core.todo.repo import TodoDb, TodoListDb
 from app.core.user.repo import UserDb
 
 
-def doc_models() -> List[Document]:
+def doc_models() -> list[Document]:
     return [UserDb, TodoListDb, TodoDb]
 
 

@@ -1,5 +1,4 @@
 from datetime import datetime, timezone
-from typing import List
 
 from beanie import Document, Indexed
 from pydantic import EmailStr
@@ -30,7 +29,7 @@ class UserDb(Document):
     last_name: str
     email: Indexed(EmailStr, unique=True)
     verified_email: EmailStr | None = None
-    roles: List[str] = []
+    roles: list[str] = []
     disabled: bool = False
     date_created: datetime
     date_modified: datetime | None = None
@@ -38,7 +37,7 @@ class UserDb(Document):
     password_hash: str
 
 
-async def create(user_create: UserCreate, roles: List[str]) -> UserPrivate:
+async def create(user_create: UserCreate, roles: list[str]) -> UserPrivate:
     if roles is None:
         roles = []
 

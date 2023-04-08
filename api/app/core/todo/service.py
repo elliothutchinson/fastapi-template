@@ -1,4 +1,3 @@
-from typing import List
 from uuid import UUID
 
 from app.core.logging import get_logger
@@ -22,7 +21,7 @@ async def create_todo_list(username: str, todo_list_create: TodoListCreate) -> T
     )
 
 
-async def fetch_todo_lists(username: str) -> List[TodoList]:
+async def fetch_todo_lists(username: str) -> list[TodoList]:
     return await todo_repo.fetch_todo_lists(username)
 
 
@@ -46,7 +45,7 @@ async def create_todo(username: str, todo_create: TodoCreate) -> Todo:
 
 async def fetch_todos(
     username: str, todo_list_id: UUID = None, incomplete_only: bool = False
-) -> List[Todo]:
+) -> list[Todo]:
     return await todo_repo.fetch_todos(
         username=username, todo_list_id=todo_list_id, incomplete_only=incomplete_only
     )

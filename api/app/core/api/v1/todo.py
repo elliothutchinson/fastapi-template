@@ -1,4 +1,3 @@
-from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
@@ -30,7 +29,7 @@ async def create_todo_list(
     return todo_list
 
 
-@router.get("/list", response_model=List[TodoList])
+@router.get("/list", response_model=list[TodoList])
 async def fetch_todo_lists(
     current_user: UserPublic = Depends(get_user_from_token),
 ):
@@ -78,7 +77,7 @@ async def create_todo(
     return todo
 
 
-@router.get("/task", response_model=List[Todo])
+@router.get("/task", response_model=list[Todo])
 async def fetch_todos(
     todo_list_id: UUID = None,
     incomplete_only: bool = False,

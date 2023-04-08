@@ -10,6 +10,8 @@ from tests.factories.todo_factory import (
     TodoUpdateFactory,
 )
 
+UUT_PATH = "app.core.todo.service"
+
 
 async def test_create_todo_list(mocker):
     todo_list = TodoListFactory.build()
@@ -18,8 +20,7 @@ async def test_create_todo_list(mocker):
     expected = todo_list
 
     mocker.patch(
-        "app.core.todo.service.todo_repo.create_todo_list",
-        AsyncMock(return_value=todo_list),
+        f"{UUT_PATH}.todo_repo.create_todo_list", AsyncMock(return_value=todo_list)
     )
 
     actual = await uut.create_todo_list(
@@ -35,8 +36,7 @@ async def test_fetch_todo_lists(mocker):
     expected = [todo_list]
 
     mocker.patch(
-        "app.core.todo.service.todo_repo.fetch_todo_lists",
-        AsyncMock(return_value=[todo_list]),
+        f"{UUT_PATH}.todo_repo.fetch_todo_lists", AsyncMock(return_value=[todo_list])
     )
 
     actual = await uut.fetch_todo_lists("tester")
@@ -51,8 +51,7 @@ async def test_update_todo_list(mocker):
     expected = todo_list
 
     mocker.patch(
-        "app.core.todo.service.todo_repo.update_todo_list",
-        AsyncMock(return_value=todo_list),
+        f"{UUT_PATH}.todo_repo.update_todo_list", AsyncMock(return_value=todo_list)
     )
 
     actual = await uut.update_todo_list(
@@ -70,8 +69,7 @@ async def test_delete_todo_list(mocker):
     expected = todo_list
 
     mocker.patch(
-        "app.core.todo.service.todo_repo.delete_todo_list",
-        AsyncMock(return_value=todo_list),
+        f"{UUT_PATH}.todo_repo.delete_todo_list", AsyncMock(return_value=todo_list)
     )
 
     actual = await uut.delete_todo_list(
@@ -87,9 +85,7 @@ async def test_create_todo(mocker):
 
     expected = todo
 
-    mocker.patch(
-        "app.core.todo.service.todo_repo.create_todo", AsyncMock(return_value=todo)
-    )
+    mocker.patch(f"{UUT_PATH}.todo_repo.create_todo", AsyncMock(return_value=todo))
 
     actual = await uut.create_todo(username="tester", todo_create=todo_create)
 
@@ -101,9 +97,7 @@ async def test_fetch_todos(mocker):
 
     expected = [todo]
 
-    mocker.patch(
-        "app.core.todo.service.todo_repo.fetch_todos", AsyncMock(return_value=[todo])
-    )
+    mocker.patch(f"{UUT_PATH}.todo_repo.fetch_todos", AsyncMock(return_value=[todo]))
 
     actual = await uut.fetch_todos(username="tester")
 
@@ -115,9 +109,7 @@ async def test_fetch_todos_for_list_incomplete(mocker):
 
     expected = [todo]
 
-    mocker.patch(
-        "app.core.todo.service.todo_repo.fetch_todos", AsyncMock(return_value=[todo])
-    )
+    mocker.patch(f"{UUT_PATH}.todo_repo.fetch_todos", AsyncMock(return_value=[todo]))
 
     actual = await uut.fetch_todos(
         username="tester", todo_list_id=todo.todo_list_id, incomplete_only=True
@@ -132,9 +124,7 @@ async def test_update_todo(mocker):
 
     expected = todo
 
-    mocker.patch(
-        "app.core.todo.service.todo_repo.update_todo", AsyncMock(return_value=todo)
-    )
+    mocker.patch(f"{UUT_PATH}.todo_repo.update_todo", AsyncMock(return_value=todo))
 
     actual = await uut.update_todo(
         username="tester", todo_id=todo.todo_id, todo_update=todo_update
@@ -148,9 +138,7 @@ async def test_delete_todo(mocker):
 
     expected = todo
 
-    mocker.patch(
-        "app.core.todo.service.todo_repo.delete_todo", AsyncMock(return_value=todo)
-    )
+    mocker.patch(f"{UUT_PATH}.todo_repo.delete_todo", AsyncMock(return_value=todo))
 
     actual = await uut.delete_todo(username="tester", todo_id=todo.todo_id)
 

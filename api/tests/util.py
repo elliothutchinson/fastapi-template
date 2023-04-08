@@ -1,5 +1,3 @@
-from typing import List
-
 import orjson
 
 
@@ -12,6 +10,6 @@ def authorization_header(access_token: str) -> dict:
     return {"Authorization": f"Bearer {access_token}"}
 
 
-def json_dict(data: dict | List[dict]) -> dict | List[dict]:
+def json_dict(data: dict | list[dict]) -> dict | list[dict]:
     json = orjson.dumps(data).decode()
     return orjson.loads(json)

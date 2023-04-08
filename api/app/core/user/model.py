@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import Optional
 
 from pydantic import BaseModel, EmailStr, SecretStr, constr, validator
 
@@ -39,7 +39,7 @@ class UserPublic(BaseModel):
     last_name: str
     email: EmailStr
     verified_email: EmailStr | None = None
-    roles: List[str]
+    roles: list[str]
     disabled: bool
     date_created: datetime
     date_modified: datetime | None = None
@@ -75,6 +75,6 @@ class UserUpdate(BaseModel):
 
 class UserUpdatePrivate(BaseModel):
     verified_email: Optional[EmailStr]
-    roles: Optional[List[str]]
+    roles: Optional[list[str]]
     disabled: Optional[bool]
     last_login: Optional[datetime]
