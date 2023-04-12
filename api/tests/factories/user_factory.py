@@ -1,6 +1,8 @@
 from datetime import datetime, timezone
+from uuid import uuid4
 
 from factory import Faker, LazyAttribute, Trait
+from faker import Faker as OrigFaker
 from pydantic import SecretStr
 
 from app.core.user.model import (
@@ -17,7 +19,7 @@ from .base_factory import BaseDbFactory, BaseFactory
 
 
 class UserPublicFactory(BaseFactory):
-    username = Faker("user_name")
+    username = LazyAttribute(lambda o: f"{OrigFaker().user_name()}_{str(uuid4())}")
     first_name = Faker("first_name")
     last_name = Faker("last_name")
     email = LazyAttribute(lambda o: f"{o.username}@example.com".lower())
@@ -59,7 +61,9 @@ class UserDbFactory(UserPrivateFactory, BaseDbFactory):
 class UserUpdateFactory(BaseFactory):
     first_name = Faker("first_name")
     last_name = Faker("last_name")
-    email = LazyAttribute(lambda o: f"{o.first_name}@example.com".lower())
+    email = LazyAttribute(
+        lambda o: f"{OrigFaker().user_name()}_{str(uuid4())}@example.com".lower()
+    )
     password = SecretStr("password")
     password_match = LazyAttribute(lambda o: o.password)
 
@@ -68,14 +72,16 @@ class UserUpdateFactory(BaseFactory):
 
 
 class UserCreateFactory(UserUpdateFactory):
-    username = Faker("user_name")
+    username = LazyAttribute(lambda o: f"{OrigFaker().user_name()}_{str(uuid4())}")
 
     class Meta:
         model = UserCreate
 
 
 class UserUpdatePrivateFactory(BaseFactory):
-    verified_email = "updated@example.com"
+    verified_email = LazyAttribute(
+        lambda o: f"{OrigFaker().user_name()}_{str(uuid4())}@example.com".lower()
+    )
     roles = ["ADMIN", "USER"]
     disabled = True
     last_login = Faker("date_time", tzinfo=timezone.utc)

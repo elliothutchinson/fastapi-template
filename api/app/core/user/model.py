@@ -61,6 +61,11 @@ class UserCreate(BaseModel):
     _min_length_password = validator("password", allow_reuse=True)(min_length_password)
     _matching_password = validator("password", allow_reuse=True)(matching_password)
 
+    class Config:
+        json_encoders = {
+            SecretStr: lambda v: v.get_secret_value(),
+        }
+
 
 class UserUpdate(BaseModel):
     first_name: Optional[str]
@@ -71,6 +76,11 @@ class UserUpdate(BaseModel):
 
     _min_length_password = validator("password", allow_reuse=True)(min_length_password)
     _matching_password = validator("password", allow_reuse=True)(matching_password)
+
+    class Config:
+        json_encoders = {
+            SecretStr: lambda v: v.get_secret_value(),
+        }
 
 
 class UserUpdatePrivate(BaseModel):
