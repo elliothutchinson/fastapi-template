@@ -56,6 +56,7 @@ class TodoApiUser(ApiUser):
 
     @task
     def update_todo_list(self):
+        # pylint: disable=duplicate-code
         self.pre_task()
 
         todo_list_dict = self.create_todo_list()

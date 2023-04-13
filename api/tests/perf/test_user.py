@@ -30,6 +30,7 @@ class UserApiUser(ApiUser):
 
     @task
     def update_curent_user(self):
+        # pylint: disable=duplicate-code
         self.pre_task()
 
         user_update = UserUpdateFactory.build()
