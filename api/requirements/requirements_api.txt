@@ -1,0 +1,10 @@
+beanie
+fastapi
+orjson
+passlib[bcrypt]
+pydantic
+pydantic[email]
+pyjwt
+python-multipart
+redis
+uvicorn[standard]

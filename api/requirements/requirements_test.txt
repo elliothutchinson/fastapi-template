@@ -1,0 +1,10 @@
+factory_boy
+freezegun
+httpx
+locust
+mongomock-motor
+mutmut
+pytest
+pytest-asyncio
+pytest-cov
+pytest-mock

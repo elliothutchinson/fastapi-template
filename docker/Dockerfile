@@ -1,0 +1,25 @@
+# docker build --target base -t fastapi-beanie-poc/api -f docker/Dockerfile .
+# docker run -d -p 8000:8000 --env-file docker/env/api.env --env-file docker/env/db.env fastapi-beanie-poc/api
+
+FROM python:3.11-slim-bullseye as base
+
+WORKDIR /app/api
+
+COPY ./api/requirements/requirements_api.txt ./requirements/
+RUN pip install -r requirements/requirements_api.txt
+
+COPY ./api/app ./app
+EXPOSE 8000
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+
+FROM base as dev
+
+RUN apt update
+RUN apt install -y gcc python3-dev
+
+COPY ./api/requirements/requirements_test.txt ./requirements/
+RUN pip install -r requirements/requirements_test.txt
+
+COPY ./api/requirements/requirements_dev.txt ./requirements/
+RUN pip install -r requirements/requirements_dev.txt

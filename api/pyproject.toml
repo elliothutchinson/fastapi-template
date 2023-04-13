@@ -1,0 +1,58 @@
+[tool.autoflake]
+exclude=["__init__.py"]
+in-place=true
+recursive=true
+remove-all-unused-imports=true
+remove-unused-variables=true
+
+[tool.black]
+line-length=88
+
+[tool.coverage.run]
+branch=true
+relative_files=true
+source=["app"]
+
+[tool.coverage.html]
+directory="coverage"
+
+[tool.coverage.xml]
+output="coverage.xml"
+
+[tool.isort]
+combine_as_imports=true
+line_length=88
+profile="black"
+
+[tool.pylint.basic]
+good-names-rgxs="^test_*"
+
+[tool.pylint.design]
+max-parents=10
+
+[tool.pylint.format]
+max-line-length=88
+
+[tool.pylint.messages_control]
+disable=[
+  "logging-fstring-interpolation",
+  "missing-class-docstring",
+  "missing-function-docstring",
+  "missing-module-docstring",
+  "no-member",
+  "too-few-public-methods"
+]
+
+[tool.pylint.reports]
+output-format="text"
+
+[tool.pytest.ini_options]
+asyncio_mode="auto"
+#log_cli=true
+
+[tool.vulture]
+ignore_decorators=["@app.exception_handler"]
+min_confidence=80
+paths=["app", "tests"]
+sort_by_size=true
+verbose=false
