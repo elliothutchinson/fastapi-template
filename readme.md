@@ -14,7 +14,6 @@
 ### Todo
 
 * ui app
-* perf tests
 * jenkins
 * psycopg/jsonb, sqlmodel, sqlalchemy, alembic
 
@@ -71,9 +70,6 @@ docker compose -p fastapi-beanie-poc -f docker/compose.yml up
 
 docker exec -it fastapi-beanie-poc-api-1 bash
 
-pip install -r requirements/requirements_dev.txt
-pip install -r requirements/requirements_test.txt
-
 docker compose -p fastapi-beanie-poc -f docker/compose.yml down
 ```
 
@@ -100,7 +96,7 @@ uvicorn --reload --reload-dir ./app app.main:app --host 0.0.0.0 --port 8000
 docker compose -p fastapi-beanie-poc -f docker/compose.yml up
 ```
 
-### With container running
+### With app running
 
 * [http://localhost:8000](http://localhost:8000)
 * [Health](http://localhost:8000/api/v1/health)

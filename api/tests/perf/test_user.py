@@ -1,33 +1,14 @@
 from locust import task
 
 from tests import util
-from tests.factories.user_factory import (
-    UserCreateFactory,
-    UserPublicFactory,
-    UserUpdateFactory,
-)
+from tests.factories.user_factory import UserPublicFactory, UserUpdateFactory
 from tests.perf.util import ApiUser
 
 
 class UserApiUser(ApiUser):
     @task
     def register_new_user(self):
-        user_create = UserCreateFactory.build()
-        user_create_json_dict = util.json_dict(user_create.dict())
-
-        expected = util.json_dict(
-            UserPublicFactory.build(
-                **user_create.dict(),
-                date_modified=None,
-                last_login=None,
-            ).dict(exclude={"date_created"})
-        )
-
-        with self.rest("POST", "/api/v1/user", json=user_create_json_dict) as response:
-            if response.status_code == 200:
-                actual = response.js
-                actual.pop("date_created")
-                self.validate(actual, expected)
+        self.register()
 
     @task
     def read_current_user(self):

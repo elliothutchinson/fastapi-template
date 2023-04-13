@@ -16,7 +16,8 @@ class ApiUser(FastHttpUser):
         self.auth_token = None
         self.headers = None
 
-    def create_user(self):
+    def register(self):
+        registered_user = None
         user_create = UserCreateFactory.build()
         user_create_json_dict = util.json_dict(user_create.dict())
 
@@ -33,9 +34,16 @@ class ApiUser(FastHttpUser):
                 actual = response.js
                 actual.pop("date_created")
                 self.validate(actual, expected)
-                self.created_user = user_create
+                registered_user = user_create
 
-    def login_user(self):
+        return registered_user
+
+    def create_user(self):
+        user_create = self.register()
+        self.created_user = user_create
+
+    def login(self):
+        auth_token = None
         credential = {
             "username": self.created_user.username,
             "password": self.created_user.password.get_secret_value(),
@@ -44,24 +52,39 @@ class ApiUser(FastHttpUser):
 
         with self.client.post("/api/v1/auth/login", data=credential) as response:
             if response.status_code == 200:
-                auth_token = response.json()
-                actual = list(auth_token)
+                token = response.json()
+                actual = list(token)
                 self.validate(actual, expected)
-                self.auth_token = AuthTokenFactory.build(**auth_token)
-                self.headers = util.authorization_header(self.auth_token.access_token)
+                auth_token = token
 
-    def refresh_token(self):
+        return auth_token
+
+    def login_user(self):
+        auth_token = self.login()
+        self.auth_token = AuthTokenFactory.build(**auth_token)
+        self.headers = util.authorization_header(self.auth_token.access_token)
+
+    def refresh(self):
+        auth_token = None
+
+        auth_token_json_dict = util.json_dict(self.auth_token.dict())
+
         expected = list(AuthTokenFactory.build().dict())
 
         with self.rest(
-            "POST", "/api/v1/auth/refresh", json=self.auth_token.json()
+            "POST", "/api/v1/auth/refresh", json=auth_token_json_dict
         ) as response:
             if response.status_code == 200:
-                auth_token = response.json()
-                actual = list(auth_token)
+                token = response.json()
+                actual = list(token)
                 self.validate(actual, expected)
-                self.auth_token = AuthTokenFactory.build(**auth_token)
-                self.headers = util.authorization_header(self.auth_token.access_token)
+                auth_token = token
+        return auth_token
+
+    def refresh_token(self):
+        auth_token = self.refresh()
+        self.auth_token = AuthTokenFactory.build(**auth_token)
+        self.headers = util.authorization_header(self.auth_token.access_token)
 
     def pre_task(self):
         if not self.created_user:
