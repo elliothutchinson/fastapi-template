@@ -59,3 +59,6 @@ def register_exceptions(app: FastAPI):
         app.exception_handler(exception)(_handler_factory(status_code))
 
     app.exception_handler(HTTPException)(_http_exception_handler)
+
+
+# todo: handle framework exceptions to use same serverresponse msg response

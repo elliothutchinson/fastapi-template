@@ -13,7 +13,6 @@
 
 ### Todo
 
-* ui app
 * jenkins
 * psycopg/jsonb, sqlmodel, sqlalchemy, alembic
 
