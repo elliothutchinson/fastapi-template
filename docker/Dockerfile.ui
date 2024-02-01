@@ -1,0 +1,5 @@
+FROM node:lts-bookworm-slim
+
+WORKDIR /app/ui
+
+CMD ["sleep", "15d"]

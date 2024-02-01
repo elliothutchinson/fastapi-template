@@ -110,9 +110,13 @@ async def update(username: str, user_update: UserUpdate) -> UserPrivate:
 
     user_db.date_modified = datetime.now(timezone.utc)
 
-    await user_db.replace()
-
-    await cache.delete(prefix=USER_CACHE_PREFIX, key=username)
+    # todo: check duplicate key error
+    try:
+        await user_db.replace()
+        await cache.delete(prefix=USER_CACHE_PREFIX, key=username)
+    except DuplicateKeyError as dke:
+        logger.error(dke)
+        raise DataConflictException("Email already exists") from dke
 
     user_private = UserPrivate(**user_db.dict())
     util.update_date_timezones_to_utc(
