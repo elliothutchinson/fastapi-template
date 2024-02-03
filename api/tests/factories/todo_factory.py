@@ -1,6 +1,7 @@
 from datetime import timezone
 
-from factory import Faker, Trait
+from factory import Faker, LazyAttribute, Trait
+from faker import Faker as OrigFaker
 
 from app.core.todo.model import (
     Todo,
@@ -18,8 +19,8 @@ from .base_factory import BaseDbFactory, BaseFactory
 class TodoListFactory(BaseFactory):
     todo_list_id = Faker("uuid4")
     list_name = Faker("pystr")
-    date_created = Faker("date_time", tzinfo=timezone.utc)
-    date_modified = Faker("date_time", tzinfo=timezone.utc)
+    date_created = LazyAttribute(lambda o: OrigFaker().date_time(tzinfo=timezone.utc).replace(microsecond=123000))
+    date_modified = LazyAttribute(lambda o: OrigFaker().date_time(tzinfo=timezone.utc).replace(microsecond=123000))
 
     class Meta:
         model = TodoList
@@ -56,8 +57,8 @@ class TodoFactory(BaseFactory):
     todo_list_id = Faker("uuid4")
     description = Faker("pystr")
     completed = Faker("pybool")
-    date_created = Faker("date_time", tzinfo=timezone.utc)
-    date_modified = Faker("date_time", tzinfo=timezone.utc)
+    date_created = LazyAttribute(lambda o: OrigFaker().date_time(tzinfo=timezone.utc).replace(microsecond=123000))
+    date_modified = LazyAttribute(lambda o: OrigFaker().date_time(tzinfo=timezone.utc).replace(microsecond=123000))
 
     class Meta:
         model = Todo

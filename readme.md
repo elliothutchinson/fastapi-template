@@ -75,7 +75,7 @@ docker compose -p fastapi-beanie-poc -f docker/compose.yml down
 ### Work with API container directly
 
 ```
-docker build . -t fastapi-beanie-poc/api -f docker/Dockerfile
+docker build . -t fastapi-beanie-poc/api -f docker/Dockerfile.api
 docker run --env-file docker/env/api.env --env-file docker/env/db.env -p 8000:8000 fastapi-beanie-poc/api
 ```
 

@@ -1,0 +1,32 @@
+pipeline {
+    agent any
+    stages {
+        stage('build') {
+            steps {
+                // docker build app
+                // docker build test app
+            }
+        }
+        stage('test') {
+            steps {
+                // vitest coverage
+            }
+        }
+        stage('quality') {
+            steps {
+                // eslint
+                // sonar
+            }
+        }
+        stage('docs') {
+            steps {
+                // jsdoc html
+            }
+        }
+        stage('deploy') {
+            steps {
+                // deploy to server
+            }
+        }
+    }
+}

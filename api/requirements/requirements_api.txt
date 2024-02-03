@@ -1,8 +1,8 @@
-beanie
+beanie==1.24.0
 fastapi
 orjson
 passlib[bcrypt]
-pydantic
+pydantic==1.*
 pydantic[email]
 pyjwt
 python-multipart

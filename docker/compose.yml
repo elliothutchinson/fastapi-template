@@ -7,13 +7,13 @@ services:
   api:
     build:
       context: ..
-      dockerfile: ./docker/Dockerfile
+      dockerfile: ./docker/Dockerfile.api
       target: dev
-    command: ["uvicorn", "--reload", "--reload-dir", "./app", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    command: ["sh", "run-dev.sh"]
     ports:
       - "8000:8000"
     volumes:
-      - ../:/app:cached
+      - ../api:/app/api:cached
     env_file:
       - ./env/api.env
       - ./env/db.env
@@ -24,8 +24,6 @@ services:
   db:
     image: mongo
     restart: always
-    # ports:
-    #   - "27017:27017"
     volumes:
       - db_data:/data/db
     env_file:
@@ -38,14 +36,20 @@ services:
       - /bin/sh
       - -c
       - redis-server --save 60 1 --loglevel warning --requirepass "$${REDIS_PASSWORD:?REDIS_PASSWORD variable is not set}"
-      # - redis-server --save 60 1 --requirepass "$${REDIS_PASSWORD:?REDIS_PASSWORD variable is not set}"
-      # - redis-server --save 60 1 --loglevel debug
-    # ports:
-    #   - "6379:6379"
     volumes:
       - cache_data:/data
     env_file:
       - ./env/db.env
+
+  ui:
+    build:
+      context: ..
+      dockerfile: ./docker/Dockerfile.ui
+    command: ["sh", "run-dev.sh"]
+    ports:
+      - "8001:3000"
+    volumes:
+      - ../ui:/app/ui:cached
 
   db-admin:
     profiles:
@@ -53,7 +57,7 @@ services:
     image: mongo-express
     restart: always
     ports:
-      - "8001:8081"
+      - "8010:8081"
     env_file:
       - ./env/db.env
     depends_on:
@@ -66,7 +70,7 @@ services:
     platform: linux/amd64
     restart: always
     ports:
-      - "8002:8081"
+      - "8011:8081"
     env_file:
       - ./env/db.env
     depends_on:
@@ -80,7 +84,7 @@ services:
       context: .
       dockerfile: ./Dockerfile.sonar-arm64
     ports:
-      - "8003:9000"
+      - "8020:9000"
     volumes:
       - sonar_data:/opt/sonarqube/data
       - sonar_extensions:/opt/sonarqube/extensions
@@ -118,7 +122,7 @@ services:
       - ci
     image: jenkins/jenkins:lts
     ports:
-      - "8004:8080"
+      - "8021:8080"
     volumes:
       - jenkins_home:/var/jenkins_home
 

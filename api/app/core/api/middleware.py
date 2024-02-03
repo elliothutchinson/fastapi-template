@@ -20,7 +20,11 @@ class RequestIdMiddleware(BaseHTTPMiddleware):  # pylint: disable=too-few-public
         request_id = request.headers.get("request_id", str(uuid4()))
         ctx_request_id.set(request_id)
 
-        ctx_request_ip.set(request.client.host)
+        # todo: update tests
+        request_ip = "n/a"
+        if hasattr(request.client, "host"):
+            request_ip = request.client.host
+        ctx_request_ip.set(request_ip)
 
         response = await call_next(request)
         response.headers["request_id"] = request_id

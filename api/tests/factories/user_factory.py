@@ -26,9 +26,9 @@ class UserPublicFactory(BaseFactory):
     verified_email = None
     roles = ["USER"]
     disabled = False
-    date_created = Faker("date_time", tzinfo=timezone.utc)
-    date_modified = Faker("date_time", tzinfo=timezone.utc)
-    last_login = Faker("date_time", tzinfo=timezone.utc)
+    date_created = LazyAttribute(lambda o: OrigFaker().date_time(tzinfo=timezone.utc).replace(microsecond=123000))
+    date_modified = LazyAttribute(lambda o: OrigFaker().date_time(tzinfo=timezone.utc).replace(microsecond=123000))
+    last_login = LazyAttribute(lambda o: OrigFaker().date_time(tzinfo=timezone.utc).replace(microsecond=123000))
 
     class Meta:
         model = UserPublic

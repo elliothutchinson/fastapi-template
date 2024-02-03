@@ -1,0 +1,13 @@
+.DS_Store
+*.pyc
+__pycache__/
+.pytest_cache/
+.mutmut-cache
+coverage/
+.coverage
+coverage.xml
+.scannerwork/
+sonar-project.properties
+docs/
+html/
+venv/

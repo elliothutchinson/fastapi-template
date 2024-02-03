@@ -1,5 +1,16 @@
-FROM node:lts-bookworm-slim
+# docker build --target base -t fastapi-beanie-poc/ui -f docker/Dockerfile.ui .
+# docker run -d -p 8001:3000 fastapi-beanie-poc/ui
+
+FROM node:lts-bookworm-slim as base
 
 WORKDIR /app/ui
 
-CMD ["sleep", "15d"]
+COPY ./ui/app ./app
+
+WORKDIR /app/ui/app
+
+RUN npm install
+RUN npm run build
+
+EXPOSE 3000
+CMD ["sh", "run-prod.sh"]
