@@ -1,5 +1,9 @@
-# docker build --target base -t fastapi-beanie-poc/ui -f docker/Dockerfile.ui .
-# docker run -d -p 8001:3000 fastapi-beanie-poc/ui
+# docker build --target base -t fastapi-template/ui -f docker/Dockerfile.ui .
+# docker run -d --name fastapi-template-ui -p 8001:3000 fastapi-template/ui
+# docker start fastapi-template-ui
+# docker stop fastapi-template-ui
+# docker rm fastapi-template-ui
+# docker exec -it fastapi-template-ui bash
 
 FROM node:lts-bookworm-slim as base
 

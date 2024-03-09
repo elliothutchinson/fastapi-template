@@ -1,5 +1,9 @@
-# docker build --target base -t fastapi-beanie-poc/api -f docker/Dockerfile.api .
-# docker run -d -p 8000:8000 --env-file docker/env/api.env --env-file docker/env/db.env fastapi-beanie-poc/api
+# docker build --target base -t fastapi-template/api -f docker/Dockerfile.api .
+# docker run -d --name fastapi-template-api -p 8000:8000 --env-file docker/env/api.env --env-file docker/env/db.env fastapi-template/api
+# docker start fastapi-template-api
+# docker stop fastapi-template-api
+# docker rm fastapi-template-api
+# docker exec -it fastapi-template-api bash
 
 FROM python:3.12-slim-bookworm as base
 

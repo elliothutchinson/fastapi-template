@@ -1,4 +1,4 @@
-# FastAPI-Beanie-POC
+# FastAPI-Template
 
 - [Overview](#overview)
 - [Setup](#setup)
@@ -16,7 +16,7 @@
 * jenkins
 * psycopg/jsonb, sqlmodel, sqlalchemy, alembic
 
-### POC exploring FastAPI with Beanie
+### FastAPI-Template
 
 * User auth support
 * Todo app
@@ -64,19 +64,19 @@ pip install -r requirements/requirements_test.txt
 
 ```
 <from project root>
-docker compose -p fastapi-beanie-poc -f docker/compose.yml build
-docker compose -p fastapi-beanie-poc -f docker/compose.yml up
+docker compose -p fastapi-template -f docker/compose.yml build
+docker compose -p fastapi-template -f docker/compose.yml up
 
-docker exec -it fastapi-beanie-poc-api-1 bash
+docker exec -it fastapi-template-api-1 bash
 
-docker compose -p fastapi-beanie-poc -f docker/compose.yml down
+docker compose -p fastapi-template -f docker/compose.yml down
 ```
 
 ### Work with API container directly
 
 ```
-docker build . -t fastapi-beanie-poc/api -f docker/Dockerfile.api
-docker run --env-file docker/env/api.env --env-file docker/env/db.env -p 8000:8000 fastapi-beanie-poc/api
+docker build . -t fastapi-template/api -f docker/Dockerfile.api
+docker run --env-file docker/env/api.env --env-file docker/env/db.env -p 8000:8000 fastapi-template/api
 ```
 
 ## Run
@@ -92,7 +92,7 @@ uvicorn --reload --reload-dir ./app app.main:app --host 0.0.0.0 --port 8000
 ### Start the containers
 
 ```
-docker compose -p fastapi-beanie-poc -f docker/compose.yml up
+docker compose -p fastapi-template -f docker/compose.yml up
 ```
 
 ### With app running
@@ -124,8 +124,8 @@ pytest
 pytest --cov-config=pyproject.toml --cov --cov-report html
 pytest --cov-config=pyproject.toml --cov --cov-report xml
 
-docker compose -p fastapi-beanie-poc -f docker/compose.yml --profile sonar up
-docker compose -p fastapi-beanie-poc -f docker/compose.yml --profile sonar-scanner up
+docker compose -p fastapi-template -f docker/compose.yml --profile sonar up
+docker compose -p fastapi-template -f docker/compose.yml --profile sonar-scanner up
 
 mutmut run
 mutmut html

@@ -1,4 +1,3 @@
-echo "npm install"
+set -x
 npm install
-echo "npm run dev"
 npm run dev
